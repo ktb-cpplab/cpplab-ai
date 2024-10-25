@@ -1,0 +1,10 @@
+
+# venv
+venv/*
+
+# embedding model
+models/*
+
+# 기타
+__pycache__
+.DS_Store
