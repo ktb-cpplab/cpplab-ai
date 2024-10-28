@@ -1,7 +1,7 @@
 import psycopg2
 from embedding import get_embedding
 
-def insert_data(title, url, contents):
+def insert_data(title, url, contents, summary):
     try:
         # 데이터베이스에 연결
         connection = psycopg2.connect(
@@ -15,12 +15,12 @@ def insert_data(title, url, contents):
 
         # 테이블에 삽입할 데이터
         insert_query = """
-        INSERT INTO embeddings (title, contents, url, vec)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO embedding1 (title, summary, contents, url, vec)
+        VALUES (%s, %s, %s, %s, %s)
         """
 
         vec = get_embedding(contents)
-        data_to_insert = (title, contents, url, vec)
+        data_to_insert = (title, summary, contents, url, vec)
 
         # 데이터 삽입 실행
         cursor.execute(insert_query, data_to_insert)
