@@ -1,14 +1,23 @@
 import psycopg2
 from embedding_text_vec import SentenceEmbedding
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+db_url = os.getenv("DB_URL")
+db_name = os.getenv("DB_NAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
 
 # 데이터 삽입 함수 최초 한번 실행
 def create_db():
     try:
         connection = psycopg2.connect(
-            host="localhost",       # 데이터베이스 호스트 주소
-            database="localTest",  # 데이터베이스 이름
-            user="postgres",    # 사용자 이름
-            password="psw" # 비밀번호
+            host= db_url,       # 데이터베이스 호스트 주소
+            database= db_name,  # 데이터베이스 이름
+            user= db_user,    # 사용자 이름
+            password= db_password # 비밀번호
         )
         
         cursor = connection.cursor()
@@ -33,19 +42,18 @@ def create_db():
 
 def insert_db():
     try:
-        # 데이터베이스에 연결
         connection_local = psycopg2.connect(
-            host="localhost",       # 데이터베이스 호스트 주소
-            database="localTest",  # 데이터베이스 이름
-            user="postgres",    # 사용자 이름
-            password="psw" # 비밀번호
+            host= db_url,       # 데이터베이스 호스트 주소
+            database= db_name,  # 데이터베이스 이름
+            user= db_user,    # 사용자 이름
+            password= db_password # 비밀번호
         )
 
         connection_server = psycopg2.connect(
-            host="localhost",       # 데이터베이스 호스트 주소
-            database="localTest",  # 데이터베이스 이름
-            user="postgres",    # 사용자 이름
-            password="psw" # 비밀번호
+            host= db_url,       # 데이터베이스 호스트 주소
+            database= db_name,  # 데이터베이스 이름
+            user= db_user,    # 사용자 이름
+            password= db_password # 비밀번호
         )
 
         cursor_local = connection_local.cursor()
@@ -109,10 +117,10 @@ def insert_db():
 def search_db(sentence):
     try:
         connection = psycopg2.connect(
-        host="localhost",       # 데이터베이스 호스트 주소
-        database="localTest",  # 데이터베이스 이름
-        user="postgres",    # 사용자 이름
-        password="psw" # 비밀번호
+        host= db_url,       # 데이터베이스 호스트 주소
+        database= db_name,  # 데이터베이스 이름
+        user= db_user,    # 사용자 이름
+        password= db_password # 비밀번호
         )
         
         cursor = connection.cursor()

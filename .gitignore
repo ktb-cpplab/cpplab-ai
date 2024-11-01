@@ -5,6 +5,9 @@ venv/*
 # embedding model
 models/*
 
+# 환경변수
+.env
+
 # 기타
 __pycache__
 .DS_Store
