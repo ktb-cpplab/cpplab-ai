@@ -10,7 +10,6 @@ png_folder = "./data/png"
 html_folder = "./data/html"
 md_folder = "./data/md"
 txt_folder = "./data/txt"
-print(os.getcwd())
 
 url = "https://api.upstage.ai/v1/document-ai/document-parse"
 headers = {"Authorization": f"Bearer {api_key}"}
