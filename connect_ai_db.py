@@ -2,6 +2,35 @@ import psycopg2
 from embedding_text_vec import SentenceEmbedding
 
 # 데이터 삽입 함수 최초 한번 실행
+def create_db():
+    try:
+        connection = psycopg2.connect(
+            host="localhost",       # 데이터베이스 호스트 주소
+            database="localTest",  # 데이터베이스 이름
+            user="postgres",    # 사용자 이름
+            password="psw" # 비밀번호
+        )
+        
+        cursor = connection.cursor()
+
+        query = f"""
+        CREATE TABLE IF NOT EXISTS courseEntity (
+        title TEXT,
+        url TEXT,
+        vec VECTOR(768)
+        );
+        """
+        cursor.execute(query)
+        connection.commit()
+
+    except Exception as error:
+        print("데이터베이스 생성 중 에러 발생:", error)
+    
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()    
+
 def insert_db():
     try:
         # 데이터베이스에 연결
@@ -9,14 +38,14 @@ def insert_db():
             host="localhost",       # 데이터베이스 호스트 주소
             database="localTest",  # 데이터베이스 이름
             user="postgres",    # 사용자 이름
-            password="tlatkd22@@" # 비밀번호
+            password="psw" # 비밀번호
         )
 
         connection_server = psycopg2.connect(
             host="localhost",       # 데이터베이스 호스트 주소
             database="localTest",  # 데이터베이스 이름
             user="postgres",    # 사용자 이름
-            password="tlatkd22@@" # 비밀번호
+            password="psw" # 비밀번호
         )
 
         cursor_local = connection_local.cursor()
@@ -83,18 +112,16 @@ def search_db(sentence):
         host="localhost",       # 데이터베이스 호스트 주소
         database="localTest",  # 데이터베이스 이름
         user="postgres",    # 사용자 이름
-        password="tlatkd22@@" # 비밀번호
+        password="psw" # 비밀번호
         )
         
         cursor = connection.cursor()
         embeddingModel = SentenceEmbedding() 
         vec = embeddingModel.get_mean_embedding(sentence)  
 
-        print("search_db에서 첫번째 vec : ", vec)
-
         query = f"""
         SELECT title, url, vec <#> %s::vector AS similarity
-        FROM embedding3
+        FROM embedding2
         ORDER BY similarity
         LIMIT 3;
         """
@@ -106,8 +133,6 @@ def search_db(sentence):
             ret.append(row[0])
             ret.append(row[1])
 
-        print("search_db 리턴 전 ret : ", ret)
-
         return ret
         
     except Exception as error:
@@ -117,5 +142,3 @@ def search_db(sentence):
         if connection:
             cursor.close()
             connection.close()
-
-
