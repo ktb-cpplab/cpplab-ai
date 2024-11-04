@@ -13,10 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 애플리케이션 코드 복사
 COPY . /app
 
-# config 디렉토리 생성 후, application.properties 복사 (Jenkins에서 시크릿 파일로 관리)
-RUN mkdir -p /app/config
-COPY application.properties /app/config/application.properties
-
 # 환경 변수 설정 (필요 시)
 # ENV APP_ENV=production
 
