@@ -1,6 +1,17 @@
+# venv
+venv/*
+
+# embedding model
+models/*
+
+# 환경변수
 .env
-data
+
+# 기타
+__pycache__
 .DS_Store
+
+# 크롤링은 일단 올리지 않겠습니다
+data
 .venv
 test
-__pycache__
