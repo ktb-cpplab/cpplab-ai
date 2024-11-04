@@ -64,6 +64,9 @@ class UserInfo(BaseModel):
     prizes: List[Prize]
     projects: List[Project]
 
+@app.get("/ai/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.post('/ai/genproject')
 def genProject(userinfo: UserInfo):
