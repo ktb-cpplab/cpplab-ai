@@ -105,3 +105,4 @@ tzdata==2024.2
 urllib3==2.2.3
 wcwidth==0.2.13
 yarl==1.17.0
+psycopg2-binary==2.9.10
