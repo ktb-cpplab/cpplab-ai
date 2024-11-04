@@ -13,13 +13,11 @@ pipeline {
         AWS_CREDENTIALS_ID = 'AWS_CREDENTIALS'
 
         REPO = 'ktb-cpplab/cpplab-ai'
-        // 팀원 A 관련 환경 변수
-        DIR_A = 'recommend'
-        ECR_REPO_A = '891612581533.dkr.ecr.ap-northeast-2.amazonaws.com/cpplab/recommend'
+        ECR_REPO = '891612581533.dkr.ecr.ap-northeast-2.amazonaws.com/cpplab/ai'  // 통합 ECR 레포지토리
 
-        // 팀원 B 관련 환경 변수
+        // 팀원별 디렉토리 설정
+        DIR_A = 'recommend'
         DIR_B = 'simon'
-        ECR_REPO_B = '891612581533.dkr.ecr.ap-northeast-2.amazonaws.com/cpplab/simon'
     }
 
     stages {
@@ -48,7 +46,7 @@ pipeline {
                         script {
                             currentBuild.description = 'Build Docker Image for Team A'
                             // 팀원 A의 Docker 이미지 빌드
-                            dockerImageA = docker.build("${ECR_REPO_A}:${env.BUILD_NUMBER}", "${DIR_A}")
+                            dockerImageA = docker.build("${ECR_REPO}:${DIR_A}-${env.BUILD_NUMBER}", "${DIR_A}")
                         }
                     }
                 }
@@ -58,7 +56,7 @@ pipeline {
                         script {
                             currentBuild.description = 'Build Docker Image for Team B'
                             // 팀원 B의 Docker 이미지 빌드
-                            dockerImageB = docker.build("${ECR_REPO_B}:${env.BUILD_NUMBER}", "${DIR_B}")
+                            dockerImageB = docker.build("${ECR_REPO}:${DIR_B}-${env.BUILD_NUMBER}", "${DIR_B}")
                         }
                     }
                 }
@@ -70,10 +68,10 @@ pipeline {
                 stage('Push Image A to ECR') {
                     steps {
                         script {
-                            currentBuild.description = 'Push Docker Image Pickle to ECR'
-                            docker.withRegistry("https://${ECR_REPO_A}", "${ECR_CREDENTIALS_ID}") {
-                                dockerImageA.push("${env.BUILD_NUMBER}")
-                                dockerImageA.push("latest")
+                            currentBuild.description = 'Push Docker Image A to ECR'
+                            docker.withRegistry("https://${ECR_REPO}", "${ECR_CREDENTIALS_ID}") {
+                                dockerImageA.push("${DIR_A}-${env.BUILD_NUMBER}")
+                                dockerImageA.push("${DIR_A}-latest")
                             }
                         }
                     }
@@ -82,10 +80,10 @@ pipeline {
                 stage('Push Image B to ECR') {
                     steps {
                         script {
-                            currentBuild.description = 'Push Docker Image Simon to ECR'
-                            docker.withRegistry("https://${ECR_REPO_B}", "${ECR_CREDENTIALS_ID}") {
-                                dockerImageB.push("${env.BUILD_NUMBER}")
-                                dockerImageB.push("latest")
+                            currentBuild.description = 'Push Docker Image B to ECR'
+                            docker.withRegistry("https://${ECR_REPO}", "${ECR_CREDENTIALS_ID}") {
+                                dockerImageB.push("${DIR_B}-${env.BUILD_NUMBER}")
+                                dockerImageB.push("${DIR_B}-latest")
                             }
                         }
                     }
@@ -99,7 +97,7 @@ pipeline {
                     currentBuild.description = 'Deploy Multi-Container to ECS'
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                         sh """
-                        # ECS Task Definition을 업데이트하고, 다중 컨테이너로 배포 -> terraform으로 추가 작성해주어야하나?
+                        # ECS Task Definition을 업데이트하고, 다중 컨테이너로 배포
                         aws ecs update-service --cluster ${ECS_CLUSTER_NAME} --service ${ECS_SERVICE_NAME} --force-new-deployment --region ${AWS_REGION}
                         """
                     }
