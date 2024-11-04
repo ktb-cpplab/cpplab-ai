@@ -10,7 +10,6 @@ db_name = os.getenv("DB_NAME")
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
 
-# 데이터 삽입 함수 최초 한번 실행
 def create_db():
     try:
         connection = psycopg2.connect(
@@ -113,7 +112,6 @@ def insert_db():
             cursor_server.close()
             connection_server.close()    
 
-# 데이터 검색 함수
 def search_db(sentence):
     try:
         connection = psycopg2.connect(
@@ -129,9 +127,9 @@ def search_db(sentence):
 
         query = f"""
         SELECT title, url, vec <#> %s::vector AS similarity
-        FROM embedding2
+        FROM courseEntity
         ORDER BY similarity
-        LIMIT 3;
+        LIMIT 10;
         """
         cursor.execute(query, (vec, ))
         results = cursor.fetchall()
@@ -150,3 +148,49 @@ def search_db(sentence):
         if connection:
             cursor.close()
             connection.close()
+
+def update_db():
+    try:
+        connection = psycopg2.connect(
+            host= db_url,       # 데이터베이스 호스트 주소
+            database= db_name,  # 데이터베이스 이름
+            user= db_user,    # 사용자 이름
+            password= db_password # 비밀번호
+        )
+
+        cursor = connection.cursor()
+
+        # 테이블에 삽입할 데이터
+        query = f"""
+            SELECT title, difficulty
+            FROM embedding0
+            """
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        for row in results:
+            title = row[0]
+            difficulty = row[1]
+            modified_difficulty = difficulty.rstrip("자")
+
+            query = """
+                    UPDATE embedding0
+                    SET difficulty = %s
+                    WHERE title = %s
+                    """
+            
+
+            
+            # 데이터 삽입 실행
+            cursor.execute(query, (modified_difficulty, title))
+            connection.commit()
+
+        print("데이터가 성공적으로 삽입되었습니다.")
+
+    except Exception as error:
+        print("데이터베이스 작업 중 에러 발생:", error)
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()  

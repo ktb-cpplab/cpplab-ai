@@ -1,9 +1,15 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+# 사용을 위해서 embedding = SentenceEmbedding()의 형태로 선언하고
+# embedding.get_embeddings(sentence) 의 형태로 사용하시면 됩니다
 class SentenceEmbedding:
     def __init__(self):
-        model_path = "/Users/sanghun/Desktop/2024_KTB/11teamCCP/models/ko-sroberta-multitask/models--jhgan--ko-sroberta-multitask/snapshots/ab957ae6a91e99c4cad36d52063a2a9cf1bf4419"
+        model_path = os.getenv("MODEL_PATH")
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.model = AutoModel.from_pretrained(model_path)
 
@@ -12,8 +18,8 @@ class SentenceEmbedding:
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
         return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
-    ## get_embeddings 는 기본적으로 string의 list 형태로 입력받습니다
-    ## 하나의 sentence 입력 시 get_embeddings("test")[0].tolist() 형태로 사용하시면 됩니다
+    # get_embeddings 는 기본적으로 string의 list 형태로 입력받습니다
+    # 하나의 sentence 입력 시 get_embeddings("test")[0].tolist() 형태로 사용하시면 됩니다
     def get_embeddings(self, sentences):
         if not sentences:
             raise ValueError("The sentences list is empty.")
