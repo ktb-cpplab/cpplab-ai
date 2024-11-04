@@ -125,6 +125,7 @@ pipeline {
     post {
         always {
             echo 'Build and Deploy Completed'
+            sh 'rm -rf recommend/models'
         }
         failure {
             echo 'Build or Deploy Failed'
