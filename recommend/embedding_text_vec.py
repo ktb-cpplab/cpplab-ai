@@ -1,9 +1,6 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # 사용을 위해서 embedding = SentenceEmbedding()의 형태로 선언하고
 # embedding.get_embeddings(sentence) 의 형태로 사용하시면 됩니다
