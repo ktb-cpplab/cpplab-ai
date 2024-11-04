@@ -21,6 +21,9 @@ class RecommendRequest(BaseModel):
 
         return ret
 
+@app.get("/ai/health")
+def health_check():
+    return {"status": "healthy"}
 
 
 @app.post("/ai/recommend")
