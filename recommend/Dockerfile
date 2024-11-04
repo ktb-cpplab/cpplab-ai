@@ -9,7 +9,7 @@ COPY recommend_course.py /app/
 COPY connect_ai_db.py /app/
 COPY embedding_text_vec.py /app/
 COPY requirements.txt /app/
-COPY recommend/models /app/models  
+COPY models /app/models  
 
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
