@@ -31,14 +31,6 @@ pipeline {
             }
         }
 
-        stage('Prepare Application Properties') {
-            steps {
-                withCredentials([file(credentialsId: 'application-properties', variable: 'PROPERTIES')]) {
-                    sh "cp \$PROPERTIES recommend/application.properties"
-                }
-            }
-        }
-
         stage('Build Docker Images') {
             parallel {
                 stage('Build Image A') {
