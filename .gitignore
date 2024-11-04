@@ -1,4 +1,3 @@
-
 # venv
 venv/*
 
@@ -13,3 +12,6 @@ __pycache__
 .DS_Store
 
 # 크롤링은 일단 올리지 않겠습니다
+data
+.venv
+test
