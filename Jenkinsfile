@@ -20,6 +20,11 @@ pipeline {
         // 디렉토리별 빌드 넘버 관리
         BUILD_NUMBER_A = "${env.BUILD_NUMBER}-peter"  // Team A의 빌드 넘버
         BUILD_NUMBER_B = "${env.BUILD_NUMBER}-simon"  // Team B의 빌드 넘버
+
+        //피클 모델 파일 정보
+        S3_BUCKET = 'cpplab-pickle'
+        S3_MODEL_PATH = 'models/'  // S3 상의 모델 파일 경로
+        LOCAL_MODEL_DIR = 'recommend'  // 로컬에서 파일을 저장할 경로
     }
 
     stages {
@@ -29,6 +34,20 @@ pipeline {
                     currentBuild.description = 'Checkout'
                     // 저장소에서 코드 가져오기
                     git branch: env.BRANCH_NAME, url: "https://github.com/${REPO}.git", credentialsId: "${GITHUB_CREDENTIALS_ID}"
+                }
+            }
+        }
+
+        stage('Download Model from S3') {
+            steps {
+                script {
+                    currentBuild.description = 'Download Model from S3'
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                        sh """
+                        # S3에서 모델 파일 다운로드
+                        aws s3 cp s3://${S3_BUCKET}/${S3_MODEL_PATH} ${LOCAL_MODEL_DIR}/
+                        """
+                    }
                 }
             }
         }
