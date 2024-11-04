@@ -44,8 +44,11 @@ pipeline {
                     currentBuild.description = 'Download Model from S3'
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                         sh """
+                        # recommend/models 폴더 생성
+                        mkdir -p recommend/models
+                        
                         # S3에서 모델 파일 다운로드
-                        aws s3 cp s3://${S3_BUCKET}/${S3_MODEL_PATH} ${LOCAL_MODEL_DIR}/
+                        aws s3 cp s3://cpplab-pickle/models/ recommend/models/ --recursive
                         """
                     }
                 }
