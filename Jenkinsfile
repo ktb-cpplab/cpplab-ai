@@ -26,7 +26,7 @@ pipeline {
                 script {
                     currentBuild.description = 'Checkout'
                     // 저장소에서 코드 가져오기
-                    git branch: ${BRANCH_NAME}, url: "https://github.com/${REPO}.git", credentialsId: "${GITHUB_CREDENTIALS_ID}"
+                    git branch: env.BRANCH_NAME, url: "https://github.com/${REPO}.git", credentialsId: "${GITHUB_CREDENTIALS_ID}"
                 }
             }
         }
