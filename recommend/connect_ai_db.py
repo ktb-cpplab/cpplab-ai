@@ -6,18 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 db_url = os.getenv("DB_URL")
-db_name = os.getenv("DB_NAME")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
 
 def create_db():
     try:
-        connection = psycopg2.connect(
-            host= db_url,       # 데이터베이스 호스트 주소
-            database= db_name,  # 데이터베이스 이름
-            user= db_user,    # 사용자 이름
-            password= db_password # 비밀번호
-        )
+        connection = psycopg2.connect(db_url)
         
         cursor = connection.cursor()
 
@@ -41,19 +33,8 @@ def create_db():
 
 def insert_db():
     try:
-        connection_local = psycopg2.connect(
-            host= db_url,       # 데이터베이스 호스트 주소
-            database= db_name,  # 데이터베이스 이름
-            user= db_user,    # 사용자 이름
-            password= db_password # 비밀번호
-        )
-
-        connection_server = psycopg2.connect(
-            host= db_url,       # 데이터베이스 호스트 주소
-            database= db_name,  # 데이터베이스 이름
-            user= db_user,    # 사용자 이름
-            password= db_password # 비밀번호
-        )
+        connection_local = psycopg2.connect(db_url)
+        connection_server = psycopg2.connect(db_url)
 
         cursor_local = connection_local.cursor()
         cursor_server = connection_server.cursor()
@@ -114,12 +95,7 @@ def insert_db():
 
 def search_db(sentence):
     try:
-        connection = psycopg2.connect(
-        host= db_url,       # 데이터베이스 호스트 주소
-        database= db_name,  # 데이터베이스 이름
-        user= db_user,    # 사용자 이름
-        password= db_password # 비밀번호
-        )
+        connection = psycopg2.connect(db_url)
         
         cursor = connection.cursor()
         embeddingModel = SentenceEmbedding() 
@@ -151,12 +127,7 @@ def search_db(sentence):
 
 def update_db():
     try:
-        connection = psycopg2.connect(
-            host= db_url,       # 데이터베이스 호스트 주소
-            database= db_name,  # 데이터베이스 이름
-            user= db_user,    # 사용자 이름
-            password= db_password # 비밀번호
-        )
+        connection = psycopg2.connect(db_url)
 
         cursor = connection.cursor()
 
