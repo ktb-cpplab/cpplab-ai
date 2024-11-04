@@ -43,15 +43,15 @@ pipeline {
                     }
                 }
 
-                stage('Build Image B') {
-                    steps {
-                        script {
-                            currentBuild.description = 'Build Docker Image for Team B'
-                            // 팀원 B의 Docker 이미지 빌드
-                            dockerImageB = docker.build("${ECR_REPO}:${DIR_B}-${env.BUILD_NUMBER}", "${DIR_B}")
-                        }
-                    }
-                }
+                // stage('Build Image B') {
+                //     steps {
+                //         script {
+                //             currentBuild.description = 'Build Docker Image for Team B'
+                //             // 팀원 B의 Docker 이미지 빌드
+                //             dockerImageB = docker.build("${ECR_REPO}:${DIR_B}-${env.BUILD_NUMBER}", "${DIR_B}")
+                //         }
+                //     }
+                // }
             }
         }
 
@@ -69,17 +69,17 @@ pipeline {
                     }
                 }
 
-                stage('Push Image B to ECR') {
-                    steps {
-                        script {
-                            currentBuild.description = 'Push Docker Image B to ECR'
-                            docker.withRegistry("https://${ECR_REPO}", "${ECR_CREDENTIALS_ID}") {
-                                dockerImageB.push("${DIR_B}-${env.BUILD_NUMBER}")
-                                dockerImageB.push("${DIR_B}-latest")
-                            }
-                        }
-                    }
-                }
+                // stage('Push Image B to ECR') {
+                //     steps {
+                //         script {
+                //             currentBuild.description = 'Push Docker Image B to ECR'
+                //             docker.withRegistry("https://${ECR_REPO}", "${ECR_CREDENTIALS_ID}") {
+                //                 dockerImageB.push("${DIR_B}-${env.BUILD_NUMBER}")
+                //                 dockerImageB.push("${DIR_B}-latest")
+                //             }
+                //         }
+                //     }
+                // }
             }
         }
 
