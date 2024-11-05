@@ -30,17 +30,14 @@ def health_check():
 def recommend_course_endpoint(request: RecommendRequest):
     sentences = request.get_sentences()
     search_result = search_db(sentences)
-    print(search_result)
-    titles = []
-    urls = []
-
-    for i in range(0, len(search_result),2):
-        titles.append(search_result[i])
-        urls.append(search_result[i+1])
-
-    result = {
-        "title" : titles,
-        "url" : urls
-    }
+    
+    result = []
+    for i in range(0, len(search_result), 2):
+        result.append({
+            "title": search_result[i],
+            "url": search_result[i + 1]
+        })
 
     return result
+
+# uvicorn recommend_course:app --reload // 실행코드입니다
