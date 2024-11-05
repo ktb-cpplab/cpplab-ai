@@ -4,8 +4,11 @@ FROM python:3.12-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# PostgreSQL의 pg_config 설치를 위해 필요한 라이브러리 추가
-RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+# PostgreSQL의 pg_config 설치와 함께 pip 설치
+RUN apt-get update && \
+    apt-get install -y libpq-dev gcc curl && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
+    rm -rf /var/lib/apt/lists/*
 
 # 필요한 파일 복사
 COPY recommend_course.py /app/
