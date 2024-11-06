@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 import os
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
@@ -64,6 +64,9 @@ class UserInfo(BaseModel):
     prizes: List[Prize]
     projects: List[Project]
 
+@app.get("/ai/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.post('/ai/genproject')
 def genProject(userinfo: UserInfo):
