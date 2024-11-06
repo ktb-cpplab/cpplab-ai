@@ -14,6 +14,7 @@ class RecommendRequest(BaseModel):
 
     def get_sentences(self) -> list[str]:
         ret = []
+        ret.append(self.job)
         ret.append(self.level)
         ret.extend(self.stack)
         ret.append(self.subject)
