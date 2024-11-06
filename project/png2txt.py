@@ -1,8 +1,8 @@
 # upstage document parse api 활용
 import requests
 import os
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 api_key = os.environ['UPSTAGE_API_KEY']
 
