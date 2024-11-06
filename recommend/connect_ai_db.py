@@ -6,10 +6,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 db_url = os.getenv("DB_URL")
+db_name = os.getenv("DB_NAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
 
 def create_db():
     try:
-        connection = psycopg2.connect(db_url)
+        connection = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password
+        )
         
         cursor = connection.cursor()
 
@@ -29,12 +37,23 @@ def create_db():
     finally:
         if connection:
             cursor.close()
-            connection.close()    
+            connection.close()
+                
 
 def insert_db():
     try:
-        connection_local = psycopg2.connect(db_url)
-        connection_server = psycopg2.connect(db_url)
+        connection_local = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password
+        )
+        connection_server = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password
+        )
 
         cursor_local = connection_local.cursor()
         cursor_server = connection_server.cursor()
@@ -95,8 +114,12 @@ def insert_db():
 
 def search_db(sentence):
     try:
-        connection = psycopg2.connect(db_url)
-        
+        connection = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password
+        )
         cursor = connection.cursor()
         embeddingModel = SentenceEmbedding() 
         vec = embeddingModel.get_mean_embedding(sentence)  
@@ -124,10 +147,17 @@ def search_db(sentence):
         if connection:
             cursor.close()
             connection.close()
+        else:
+            print("데이터 베이스 연결에 실패했습니다")
 
 def update_db():
     try:
-        connection = psycopg2.connect(db_url)
+        connection = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password
+        )
 
         cursor = connection.cursor()
 
