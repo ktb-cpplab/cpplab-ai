@@ -21,4 +21,4 @@ COPY models /app/models
 RUN pip install --no-cache-dir -r requirements.txt
 
 # FastAPI 애플리케이션 실행
-CMD ["uvicorn", "recommend_course:app", "--host", "0.0.0.0", "--port", "5000”]
+CMD ["uvicorn", "recommend_course:app", "--host", "0.0.0.0", "--port", "5000"]
