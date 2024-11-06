@@ -99,6 +99,9 @@ regen_chain = regen_prompt|regen_llm|parser
 
 app = FastAPI()
 
+@app.get("/ai/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.post('/ai/genproject')
 def genProject(userinfo: UserInfo):
