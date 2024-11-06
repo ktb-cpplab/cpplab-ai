@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field, constr
 from typing import List, Optional
 
 import os
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
