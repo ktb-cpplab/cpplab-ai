@@ -1,7 +1,8 @@
 # uvicorn main:app --reload
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, constr
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import os
 # from dotenv import load_dotenv
@@ -76,7 +77,7 @@ class Project(BaseModel):
 # 프로젝트 재생성
 # 프로젝트 재생성 input class
 class RegenInfo(BaseModel):
-    prev_project: str
+    prev_project: Dict
     level: str
     theme: str
     domain: str
@@ -98,6 +99,18 @@ regen_prompt = regen_prompt.partial(format_instructions=parser.get_format_instru
 regen_chain = regen_prompt|regen_llm|parser
 
 app = FastAPI()
+
+origins = [
+    "http://www.cpplab.store"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/ai/health")
 def health_check():
