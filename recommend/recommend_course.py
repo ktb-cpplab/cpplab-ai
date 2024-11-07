@@ -6,19 +6,35 @@ from pydantic import BaseModel
 app = FastAPI()
 
 class RecommendRequest(BaseModel):
-    user_job: str
-    project_level: str
-    project_stack: list[str]
-    project_title: str
-    project_description: str
+    # hope_job: str
+    # project_level: str
+    # project_stack: list[str]
+    # project_title: str
+    # project_description: str
 
+    hopeJob: str
+    projectLevel: str
+    projectStack: list[str]
+    projectTitle: str
+    projectDescription: str
+
+    # def get_sentences(self) -> list[str]:
+    #     ret = []
+    #     ret.append(self.hope_job)
+    #     ret.append(self.project_level)
+    #     ret.extend(self.project_stack)
+    #     ret.append(self.project_title)
+    #     ret.append(self.project_description)
+
+        # return ret
+    
     def get_sentences(self) -> list[str]:
         ret = []
-        ret.append(self.user_job)
-        ret.append(self.project_level)
-        ret.extend(self.project_stack)
-        ret.append(self.project_title)
-        ret.append(self.project_description)
+        ret.append(self.hopeJob)
+        ret.append(self.projectLevel)
+        ret.extend(self.projectStack)
+        ret.append(self.projectTitle)
+        ret.append(self.projectDescription)
 
         return ret
 
