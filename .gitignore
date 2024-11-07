@@ -16,4 +16,12 @@ test.py
 test
 data
 
+
+# aws
+aws/*
+AWSCLIV2.pkg
+awscliv2.zip
+sessionmanager-bundle/*
+sessionmanager-bundle.zip
+
 # 크롤링은 일단 올리지 않겠습니다

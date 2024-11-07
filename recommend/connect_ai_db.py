@@ -9,6 +9,33 @@ db_url = os.getenv("DB_URL")
 db_name = os.getenv("DB_NAME")
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
+db_port = os.getenv("DB_PORT")
+
+def extend_pgvector():
+    try:
+        connection = psycopg2.connect(
+            host = db_url,
+            database = db_name,
+            user = db_user,
+            password = db_password,
+            port = db_port
+        )
+        
+        cursor = connection.cursor()
+
+        query = f"""
+        CREATE EXTENSION IF NOT EXISTS vector;
+        """
+        cursor.execute(query)
+        connection.commit()
+
+    except Exception as error:
+        print("pgvector 확장 중 에러 발생:", error)
+    
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
 
 def create_db():
     try:
@@ -16,7 +43,8 @@ def create_db():
             host = db_url,
             database = db_name,
             user = db_user,
-            password = db_password
+            password = db_password,
+            port = db_port
         )
         
         cursor = connection.cursor()
@@ -38,21 +66,30 @@ def create_db():
         if connection:
             cursor.close()
             connection.close()
-                
 
 def insert_db():
     try:
-        connection_local = psycopg2.connect(
-            host = db_url,
-            database = db_name,
-            user = db_user,
-            password = db_password
-        )
         connection_server = psycopg2.connect(
             host = db_url,
             database = db_name,
             user = db_user,
-            password = db_password
+            password = db_password,
+            port = db_port
+        )
+
+        local_db_url = os.getenv("LOCAL_DB_URL")
+        local_db_name = os.getenv("LOCAL_DB_NAME")
+        local_db_user = os.getenv("LOCAL_DB_USER")
+        local_db_password = os.getenv("LOCAL_DB_PASSWORD")
+        local_db_port = os.getenv("LOCAL_DB_PORT")
+
+
+        connection_local = psycopg2.connect(
+            host = local_db_url,
+            database = local_db_name,
+            user = local_db_user,
+            password = local_db_password,
+            port = local_db_port
         )
 
         cursor_local = connection_local.cursor()
@@ -118,7 +155,8 @@ def search_db(sentence):
             host = db_url,
             database = db_name,
             user = db_user,
-            password = db_password
+            password = db_password,
+            port = db_port
         )
         cursor = connection.cursor()
         embeddingModel = SentenceEmbedding() 
