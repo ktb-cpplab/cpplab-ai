@@ -8,14 +8,8 @@ models/*
 # 환경변수
 .env
 
-# 기타
-__pycache__
-.DS_Store
-
-test.py
-test
-data
-
+# 로컬에서 데이터베이스 접근
+connect_local_db.py
 
 # aws
 aws/*
@@ -24,4 +18,10 @@ awscliv2.zip
 sessionmanager-bundle/*
 sessionmanager-bundle.zip
 
-# 크롤링은 일단 올리지 않겠습니다
+# 기타
+__pycache__
+.DS_Store
+
+test.py
+test
+data
