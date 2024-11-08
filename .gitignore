@@ -9,9 +9,10 @@ models_test/*
 # 환경변수
 .env
 
-# 로컬에서 데이터베이스 접근
+# 로컬 테스트
 connect_local_db.py
 recommend_course_local_test.py
+embedding_text_vec_local_test.py
 
 # aws
 aws/*

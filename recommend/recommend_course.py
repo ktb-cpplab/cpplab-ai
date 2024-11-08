@@ -16,7 +16,7 @@ class RecommendRequest(BaseModel):
     difficultyLevel: str
     techStacks: list[str]
     projectTitle: str
-    projectDescription: str
+    projectSummary: str
 
     # def get_sentences(self) -> list[str]:
     #     ret = []
@@ -34,7 +34,7 @@ class RecommendRequest(BaseModel):
         ret.append(self.difficultyLevel)
         ret.extend(self.techStacks)
         ret.append(self.projectTitle)
-        ret.append(self.projectDescription)
+        ret.append(self.projectSummary)
 
         return ret
 
