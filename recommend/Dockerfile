@@ -1,7 +1,7 @@
 # 1. Python 베이스 이미지
 FROM python:3.12-slim as base
 
-# 빌드 의존성 및 필수 도구 설치 단계
+# 2. 빌드 의존성 및 필수 도구 설치 단계
 FROM base as builder
 
 # 빌드용 패키지 설치
@@ -18,18 +18,17 @@ COPY requirements.txt ./
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 2. 최종 이미지 설정
+# 3. 최종 이미지 설정
 FROM base
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 의존성 및 애플리케이션 파일 복사
+# 의존성 복사
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-COPY recommend_course.py connect_ai_db.py embedding_text_vec.py ./
 
-# 모델 파일 복사
+# 애플리케이션 파일 복사
+COPY recommend_course.py connect_ai_db.py embedding_text_vec.py ./
 COPY models /app/models
 
 # 애플리케이션 실행
