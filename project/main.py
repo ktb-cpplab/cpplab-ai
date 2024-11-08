@@ -11,7 +11,9 @@ load_dotenv()
 app = FastAPI()
 
 origins = [
-    "http://www.cpplab.store"
+    "http://www.cpplab.store",
+    "http://cpplab.store",
+    "cpplab.store"
 ]
 
 app.add_middleware(
