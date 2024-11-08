@@ -13,8 +13,8 @@ class RecommendRequest(BaseModel):
     # project_description: str
 
     hopeJob: str
-    projectLevel: str
-    projectStack: list[str]
+    difficultyLevel: str
+    techStacks: list[str]
     projectTitle: str
     projectDescription: str
 
@@ -31,8 +31,8 @@ class RecommendRequest(BaseModel):
     def get_sentences(self) -> list[str]:
         ret = []
         ret.append(self.hopeJob)
-        ret.append(self.projectLevel)
-        ret.extend(self.projectStack)
+        ret.append(self.difficultyLevel)
+        ret.extend(self.techStacks)
         ret.append(self.projectTitle)
         ret.append(self.projectDescription)
 

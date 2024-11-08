@@ -7,11 +7,12 @@ import os
 
 # 사용을 위해서 embedding = SentenceEmbedding()의 형태로 선언하고
 # embedding.get_embeddings(sentence) 의 형태로 사용하시면 됩니다
+print(os.getenv("MODEL_PATH"))
 class SentenceEmbedding:
     def __init__(self):
         model_path = os.getenv("MODEL_PATH")
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModel.from_pretrained(model_path)
+        self.model = AutoModel.from_pretrained(model_path, local_files_only=True)
 
     def mean_pooling(self, model_output, attention_mask):
         token_embeddings = model_output[0]  # Contains all token embeddings
