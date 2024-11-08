@@ -17,3 +17,6 @@ test
 data
 
 # 크롤링은 일단 올리지 않겠습니다
+
+# 데이터 전처리
+preprocessing
