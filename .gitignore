@@ -4,9 +4,21 @@ venv/*
 
 # embedding model
 models/*
+models_test/*
 
 # 환경변수
 .env
+
+# 로컬에서 데이터베이스 접근
+connect_local_db.py
+recommend_course_local_test.py
+
+# aws
+aws/*
+AWSCLIV2.pkg
+awscliv2.zip
+sessionmanager-bundle/*
+sessionmanager-bundle.zip
 
 # 기타
 __pycache__
