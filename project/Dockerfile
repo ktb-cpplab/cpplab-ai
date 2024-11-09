@@ -10,8 +10,10 @@ RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/li
 # 필요한 파일 복사
 COPY main.py /app/
 COPY requirements.txt /app/
-COPY project /app/project  
-COPY recommend /app/recommend 
+COPY models /app/models
+COPY services /app/services
+COPY project_info.py /app/
+COPY user_info.py /app/
 
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
