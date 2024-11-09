@@ -10,9 +10,11 @@ RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/li
 # 필요한 파일 복사
 COPY main.py /app/
 COPY requirements.txt /app/
+COPY project /app/project  
+COPY recommend /app/recommend 
 
 # 의존성 설치
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # FastAPI 애플리케이션 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5001"]
