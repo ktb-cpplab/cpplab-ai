@@ -12,8 +12,6 @@ COPY main.py /app/
 COPY requirements.txt /app/
 COPY models /app/models
 COPY services /app/services
-COPY project_info.py /app/
-COPY user_info.py /app/
 
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
