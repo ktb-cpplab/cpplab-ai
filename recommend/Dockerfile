@@ -26,7 +26,8 @@ WORKDIR /app
 
 # 의존성 복사
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/  # 실행 파일 복사
+# 실행 파일 복사
+COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/
 
 # 애플리케이션 파일 복사
 COPY recommend_course.py connect_ai_db.py embedding_text_vec.py ./
