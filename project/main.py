@@ -5,8 +5,8 @@ from models.user_info import UserInfo
 from models.project_info import RegenInfo
 from services.chain_generator import create_gen_chain, create_regen_chain
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 app = FastAPI()
 
