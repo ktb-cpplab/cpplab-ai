@@ -2,6 +2,8 @@ from embedding_text_vec import SentenceEmbedding
 from connect_ai_db import search_db
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -37,6 +39,19 @@ class RecommendRequest(BaseModel):
         ret.append(self.projectSummary)
 
         return ret
+
+origins = [
+    "https://cpplab.store",
+    "https://be.cpplab.store"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/ai/health")
 def health_check():
