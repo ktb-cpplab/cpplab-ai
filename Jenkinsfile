@@ -28,6 +28,17 @@ pipeline {
     }
 
     stages {
+        stage('Cleanup Docker Cache') {
+            steps {
+                script {
+                    currentBuild.description = 'Cleanup Docker Cache'
+                    sh """
+                    docker system prune -af --volumes
+                    """
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 script {
