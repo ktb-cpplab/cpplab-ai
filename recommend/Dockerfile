@@ -15,8 +15,8 @@ WORKDIR /app
 # 필요한 파일만 먼저 복사하여 캐시 활용
 COPY requirements.txt ./
 
-# 의존성 설치
-RUN pip install --no-cache-dir -r requirements.txt
+# 의존성 설치 (여기에 uvicorn 설치 명령어 추가)
+RUN pip install --no-cache-dir -r requirements.txt && pip install uvicorn
 
 # 3. 최종 이미지 설정
 FROM base
