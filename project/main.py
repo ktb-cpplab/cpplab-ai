@@ -5,8 +5,8 @@ from models.user_info import UserInfo
 from models.project_info import RegenInfo
 from services.chain_generator import create_gen_chain, create_regen_chain
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from langchain_teddynote import logging
 logging.langsmith("cpplab_test")
@@ -14,9 +14,7 @@ logging.langsmith("cpplab_test")
 app = FastAPI()
 
 origins = [
-    "http://www.cpplab.store",
-    "http://cpplab.store",
-    "cpplab.store"
+    "https://cpplab.store"
 ]
 
 app.add_middleware(
