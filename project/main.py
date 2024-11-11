@@ -8,6 +8,9 @@ from services.chain_generator import create_gen_chain, create_regen_chain
 from dotenv import load_dotenv
 load_dotenv()
 
+from langchain_teddynote import logging
+logging.langsmith("cpplab_test")
+
 app = FastAPI()
 
 origins = [
