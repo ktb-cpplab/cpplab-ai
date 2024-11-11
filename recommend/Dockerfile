@@ -1,8 +1,8 @@
 # 1. Python 베이스 이미지
-FROM python:3.12-slim as base
+FROM python:3.12-slim AS base
 
 # 2. 빌드 의존성 및 필수 도구 설치 단계
-FROM base as builder
+FROM base AS builder
 
 # 빌드용 패키지 설치
 RUN apt-get update && \
