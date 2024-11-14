@@ -8,27 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 class RecommendRequest(BaseModel):
-    # hope_job: str
-    # project_level: str
-    # project_stack: list[str]
-    # project_title: str
-    # project_description: str
-
     hopeJob: str
     difficultyLevel: str
     techStacks: list[str]
     projectTitle: str
     projectSummary: str
-
-    # def get_sentences(self) -> list[str]:
-    #     ret = []
-    #     ret.append(self.hope_job)
-    #     ret.append(self.project_level)
-    #     ret.extend(self.project_stack)
-    #     ret.append(self.project_title)
-    #     ret.append(self.project_description)
-
-        # return ret
     
     def get_sentences(self) -> list[str]:
         ret = []
