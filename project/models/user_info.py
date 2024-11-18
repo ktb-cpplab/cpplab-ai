@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 
+# 생성을 위한 사용자 정보
 class Activity(BaseModel):
     title: str
     description: str
