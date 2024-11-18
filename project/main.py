@@ -10,8 +10,8 @@ from langchain_community.vectorstores.pgvector import DistanceStrategy
 from langchain_openai import OpenAIEmbeddings
 import os
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from langchain_teddynote import logging
 logging.langsmith("cpplab_test")
@@ -35,7 +35,7 @@ regen_chain = create_regen_chain()
 
 embeddings = OpenAIEmbeddings(model = "text-embedding-3-small") # 임베딩 모델 선언
 
-conn = os.getenv('db_conn') 
+conn = os.getenv('CLOUD_DB')
 vectorstore = PGVector.from_existing_index( # db 연결
     embedding=embeddings,
     connection=conn,
@@ -66,7 +66,7 @@ def genProject(userinfo: UserInfo):
         f"활동: {', '.join([activity.title for activity in userinfo.activities])}",
         f"보유 자격증: {', '.join([cert.certificateName for cert in userinfo.certificates])}"
     ])
-    
+
     # 검색된 문서에서 context 구성
     retrieved_docs = retriever.invoke(user_query)
 
@@ -75,6 +75,8 @@ def genProject(userinfo: UserInfo):
         f"Content: {doc.page_content}\nMetadata: {doc.metadata}"
         for doc in retrieved_docs
     )
+    print(user_query)
+    print(job_posting)
 
     proj = gen_chain.invoke(
         input={
@@ -93,13 +95,15 @@ def genProject(userinfo: UserInfo):
 
 @app.post('/ai/regenproject')
 def regenProject(regeninfo: RegenInfo):
+    job_posting = "" # 공백 하드코딩
     proj = regen_chain.invoke(
         input={
             'prev_project': regeninfo.prev_project,
             'level': regeninfo.level,
-            'theme': regeninfo.projectOption,
+            'projectOption': regeninfo.projectOption,
             'domain': regeninfo.domain,
-            'stacks': regeninfo.stacks
+            'stacks': regeninfo.stacks,
+            'job_posting': job_posting
         }
     )
     return proj
