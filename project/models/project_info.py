@@ -13,7 +13,7 @@ class Project(BaseModel):
     difficultyLevel: str = Field(description="프로젝트의 난이도 수준 ('초급', '중급', '고급' 중 하나)")
     projectSummary: str = Field(description="프로젝트의 전체 요약")
     steps: List[TaskStep] = Field(description="프로젝트 진행 단계와 각 단계별 작업들")
-    projectOptions: List[str] = Field(description= "후보 추천 프로젝트의 키워드")
+    projectOptions: List[str] = Field(description= "다른 후보 추천 프로젝트들의 주제 키워드 3개")
 
 # 재생성을 위한 정보
 class RegenInfo(BaseModel):
