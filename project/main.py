@@ -6,7 +6,6 @@ from services.chain_generator import create_gen_chain, create_regen_chain
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain_community.vectorstores.pgvector import DistanceStrategy
-from langchain_openai import OpenAIEmbeddings
 import os
 
 # from dotenv import load_dotenv
