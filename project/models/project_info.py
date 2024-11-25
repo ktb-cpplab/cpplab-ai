@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List
 
 class TaskStep(BaseModel):
     stepTitle: str = Field(description="각 단계의 제목")
@@ -14,11 +14,3 @@ class Project(BaseModel):
     projectSummary: str = Field(description="프로젝트의 전체 요약")
     steps: List[TaskStep] = Field(description="프로젝트 진행 단계와 각 단계별 작업들")
     projectOptions: List[str] = Field(description= "다른 후보 추천 프로젝트들의 주제 키워드 3개")
-
-# 재생성을 위한 정보
-class RegenInfo(BaseModel):
-    prev_project: Dict
-    level: str
-    projectOption: str
-    domain: str
-    stacks: List[str]
