@@ -1,8 +1,7 @@
 # uvicorn main:app --reload
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from models.user_info import UserInfo
-from models.project_info import RegenInfo
+from models.user_info import UserInfo, RegenInfo
 from services.chain_generator import create_gen_chain, create_regen_chain
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
@@ -44,11 +43,6 @@ vectorstore = PGVector.from_existing_index( # db 연결
     use_jsonb = True,
 )
 
-retriever = vectorstore.as_retriever( # 검색기 선언
-    search_type = 'similarity',
-    search_kwargs={"k": 5}
-    )
-
 @app.get("/ai/health")
 def health_check():
     return {"status": "healthy"}
@@ -68,12 +62,12 @@ def genProject(userinfo: UserInfo):
     ])
 
     # 검색된 문서에서 context 구성
-    retrieved_docs = retriever.invoke(user_query)
+    results_with_scores = vectorstore.similarity_search_with_score(user_query, k=5)
 
     # 검색된 문서를 LLM 프롬프트에 전달할 context로 변환
     job_posting = "\n\n".join(
-        f"Content: {doc.page_content}\nMetadata: {doc.metadata}"
-        for doc in retrieved_docs
+        f"Content: {doc.page_content}\nMetadata: {doc.metadata}\n사용자와의 Cosine Distance: {score}"
+        for doc, score in results_with_scores
     )
     print(user_query)
     print(job_posting)
