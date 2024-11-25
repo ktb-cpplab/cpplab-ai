@@ -2,7 +2,7 @@ import psycopg2
 from embedding_text_vec import SentenceEmbedding
 import os
 from dotenv import load_dotenv
-from tf_idf import extractKeywords, get_tf_idf, create_vectorizer
+from tf_idf import get_keywords, get_tf_idf, create_vectorizer
 
 load_dotenv()
 
@@ -35,7 +35,7 @@ def create_tfidf():
             title TEXT,
             contents TEXT,
             url TEXT,
-            vec VECTOR(1893)
+            vec VECTOR(1903)
             );
             """
         cursor.execute(query)
@@ -49,7 +49,7 @@ def create_tfidf():
             cursor.close()
             connection.close()
 
-def insert_TFIDF():
+def insert_tfidf():
     try:
         connection_local = psycopg2.connect(
             host = local_db_url,
@@ -69,6 +69,7 @@ def insert_TFIDF():
         cursor_local.execute(query)
         results_local = cursor_local.fetchall()
 
+        result = []
         for row in results_local:
             title = row[0]
             learning = row[1]
@@ -87,22 +88,13 @@ def insert_TFIDF():
             for te in tech:
                 contents = contents + " " + te
 
-            words = extractKeywords(contents)
-
-            keywords = ""
-            for word in words.split():
-                if len(word) == 1:
-                    if word == 'C' or word == '웹':
-                        keywords = keywords + " " + word
-                else:
-                    keywords = keywords + " " + word
-
+            keywords = get_keywords(contents)     
 
             query = """
                     INSERT INTO tfidf (title, contents, url)
                     VALUES (%s, %s, %s)
                     """            
-
+            
             data_to_insert = (title, keywords, url)
             cursor_local.execute(query, data_to_insert)
             connection_local.commit()
@@ -117,7 +109,7 @@ def insert_TFIDF():
             cursor_local.close()
             connection_local.close()    
 
-def update_TFIDF():
+def update_tfidf():
     try:
         connection_local = psycopg2.connect(
             host = local_db_url,
@@ -146,21 +138,18 @@ def update_TFIDF():
             contents.append(content)
 
         vectorizer = create_vectorizer(contents)
-        print("vectorizer : ", vectorizer)
-        print("type       : ", type(vectorizer))
-        '''
+
         for idx in range(len(contents)):
             query = """
                     UPDATE tfidf
                     SET vec = %s
                     WHERE title = %s                
                 """
-            vec = get_tf_idf(vectorizer, [contents[idx]])
             
+            vec = get_tf_idf(vectorizer, contents[idx])
             data_to_insert = (vec, titles[idx])
             cursor_local.execute(query, data_to_insert)
             connection_local.commit()
-        '''
 
         print("데이터가 성공적으로 삽입되었습니다.")
 
@@ -257,3 +246,9 @@ def search_tfidf(sentence):
             print("데이터 베이스 연결에 실패했습니다")
 
 #search_tfidf("윈도우 어플리케이션 개발 SW 개발 경험(C++,C#) Windows Application 개발 경험 Software Architecture 설계 경험 차량 제어기 검증 관련 툴 사용 경험(Vector/dSPACE/NI/ETAS 등) SW 검증 및 성능 관련 테스트 경험 협업 툴 사용 경험(Git, Jira, Jenkins 등)")
+
+'''
+create_tfidf()
+insert_tfidf()
+update_tfidf()
+'''
