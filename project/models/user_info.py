@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict
 
+# 생성을 위한 사용자 정보
 class Activity(BaseModel):
     title: str
     description: str
@@ -44,3 +45,12 @@ class UserInfo(BaseModel):
     educations: List[Education]
     prizes: List[Prize]
     projects: List[Project]
+
+# 재생성을 위한 정보
+class RegenInfo(BaseModel):
+    portfolio: Dict
+    prev_project: Dict
+    level: str
+    projectOption: str
+    domain: str
+    stacks: List[str]
