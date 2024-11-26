@@ -31,11 +31,12 @@ def create_tfidf():
         cursor = connection.cursor()
 
         query = f"""
+            drop table IF EXISTS tfidf;
             CREATE TABLE IF NOT EXISTS tfidf (
             title TEXT,
             contents TEXT,
             url TEXT,
-            vec VECTOR(1903)
+            vec VECTOR(1901)
             );
             """
         cursor.execute(query)
@@ -215,25 +216,21 @@ def search_tfidf(sentence):
         vectorizer = get_vectorizer()
         vec = get_tf_idf(vectorizer, sentence)
 
-        x = ['-', '=', '#', '+']
-
-        for type in x:
-            print(f"------------------------------ {type} ------------------------------")
-            query = f"""
-            SELECT title, vec <{type}> %s::vector AS similarity
-            FROM tfidf
-            ORDER BY similarity
-            LIMIT 10;
-            """
-            cursor.execute(query, (vec, ))
-            results = cursor.fetchall()
-            
-            for idx, row in enumerate(results):
-                title = row[0]
-                similarity = row[1]
-                print(f"TOP{idx+1}")
-                print("title      :", title)
-                print("Similarity : ", similarity)
+        query = f"""
+        SELECT title, vec <-> %s::vector AS similarity
+        FROM tfidf
+        ORDER BY similarity
+        LIMIT 10;
+        """
+        cursor.execute(query, (vec, ))
+        results = cursor.fetchall()
+        
+        for idx, row in enumerate(results):
+            title = row[0]
+            similarity = row[1]
+            print(f"TOP{idx+1}")
+            print("title      :", title)
+            print("Similarity : ", similarity)
         
     except Exception as error:
         print("데이터 검색 중 에러 발생:", error)
@@ -245,10 +242,10 @@ def search_tfidf(sentence):
         else:
             print("데이터 베이스 연결에 실패했습니다")
 
-#search_tfidf("윈도우 어플리케이션 개발 SW 개발 경험(C++,C#) Windows Application 개발 경험 Software Architecture 설계 경험 차량 제어기 검증 관련 툴 사용 경험(Vector/dSPACE/NI/ETAS 등) SW 검증 및 성능 관련 테스트 경험 협업 툴 사용 경험(Git, Jira, Jenkins 등)")
+search_tfidf("AI 개발자 초급 Python TensorFlow Pandas Numpy AI 기반 교통 혼잡 예측 시스템 개발 이 프로젝트는 AI 기술을 활용하여 교통 혼잡을 예측하는 시스템을 개발합니다. 다양한 데이터 소스를 사용하여 정확한 예측 모델을 구축하고, 사용자에게 유용한 정보를 제공합니다.")
+#search_tfidf("백엔드 개발자 중급 Redis Java Spring Boot MySQL 중급 비즈니스 로직 개발 프로젝트 본 프로젝트는 고급 비즈니스 로직을 구현하기 위해 Redis를 활용한 데이터 캐싱 및 API 설계를 포함합니다. 복잡한 데이터 흐름을 효율적으로 처리하고, 비즈니스 요구 사항을 충족시키는 시스템을 구축합니다.")
+#search_tfidf("윈도우 어플리케이션 개발자 hadoop recoil redux 중급 웹 애플리케이션 성능 최적화 프로젝트 이 프로젝트는 웹 애플리케이션의 성능을 개선하기 위해 데이터 처리 및 상태 관리를 최적화하는 것을 목표로 합니다. Hadoop을 활용한 데이터 처리, Recoil 및 Redux를 통한 상태 관리 최적화 등을 통해 사용자 경험을 향상시킵니다.")
 
-'''
-create_tfidf()
-insert_tfidf()
-update_tfidf()
-'''
+
+#insert_tfidf()
+#update_tfidf()
