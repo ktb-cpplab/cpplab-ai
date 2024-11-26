@@ -46,6 +46,13 @@ vectorstore = PGVector.from_existing_index( # db 연결
 def health_check():
     return {"status": "healthy"}
 
+# 일단 두 체인 다 업데이트
+@app.post("/ai/updatechain")
+def update_chain():
+    global gen_chain, regen_chain
+    gen_chain = create_gen_chain()
+    regen_chain = create_regen_chain()
+
 @app.post('/ai/genproject')
 def genProject(userinfo: UserInfo):
     # userinfo를 문자열로 변환하여 검색 query로 사용
@@ -73,9 +80,11 @@ def genProject(userinfo: UserInfo):
 
     proj = gen_chain.invoke(
         input={
+            "rank": userinfo.rank,
             "hopeJob": userinfo.hopeJob,
             "mainStack": userinfo.mainStack,
             "educations": userinfo.educations,
+            "companies": userinfo.companies,
             "projects": userinfo.projects,
             "prizes": userinfo.prizes,
             "activities": userinfo.activities,
@@ -91,10 +100,11 @@ def regenProject(regeninfo: RegenInfo):
     job_posting = "" # 공백 하드코딩
     proj = regen_chain.invoke(
         input={
+            'portfolio': regeninfo.portfolio,
             'prev_project': regeninfo.prev_project,
             'level': regeninfo.level,
             'projectOption': regeninfo.projectOption,
-            'domain': regeninfo.domain,
+            # 'domain': regeninfo.domain,
             'stacks': regeninfo.stacks,
             'job_posting': job_posting
         }
