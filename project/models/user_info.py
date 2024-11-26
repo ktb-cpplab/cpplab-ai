@@ -52,5 +52,5 @@ class RegenInfo(BaseModel):
     prev_project: Dict
     level: str
     projectOption: str
-    domain: str
+    # domain: str
     stacks: List[str]
