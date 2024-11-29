@@ -3,9 +3,9 @@ from embedding_text_vec import SentenceEmbedding
 from tf_idf import get_tf_idf, create_vectorizer
 import os
 import time
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 db_url = os.getenv("DB_URL")
 db_name = os.getenv("DB_NAME")
