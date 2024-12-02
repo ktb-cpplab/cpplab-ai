@@ -10,7 +10,7 @@ parser = JsonOutputParser(pydantic_object=Project)
 
 # 프로젝트 생성 chain
 def create_gen_chain():
-    gen_prompt = hub.pull("cpplab")
+    gen_prompt = hub.pull("gen_prompt")
     gen_llm = ChatOpenAI(model="gpt-4o-mini")
     gen_prompt = gen_prompt.partial(format_instructions=parser.get_format_instructions())
     return gen_prompt | gen_llm | parser
