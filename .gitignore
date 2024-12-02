@@ -10,6 +10,8 @@ models_test/*
 .env
 
 # 로컬 테스트
+connect_local_db.py
+connect_local_tfidf.py
 recommend_course_local_test.py
 embedding_text_vec_local_test.py
 

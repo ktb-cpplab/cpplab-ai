@@ -1,9 +1,7 @@
-from embedding_text_vec import SentenceEmbedding
 from connect_ai_db import search_db
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
 
 app = FastAPI()
 

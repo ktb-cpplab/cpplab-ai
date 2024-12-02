@@ -7,7 +7,6 @@ import os
 
 # 사용을 위해서 embedding = SentenceEmbedding()의 형태로 선언하고
 # embedding.get_embeddings(sentence) 의 형태로 사용하시면 됩니다
-print(os.getenv("MODEL_PATH"))
 class SentenceEmbedding:
     def __init__(self):
         model_path = os.getenv("MODEL_PATH")
