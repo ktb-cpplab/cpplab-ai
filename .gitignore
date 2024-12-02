@@ -5,6 +5,7 @@ venv/*
 # embedding model
 models/*
 models_test/*
+mecab/*
 
 # 환경변수
 .env
