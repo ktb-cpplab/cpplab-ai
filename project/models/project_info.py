@@ -14,3 +14,9 @@ class Project(BaseModel):
     projectSummary: str = Field(description="프로젝트의 전체 요약")
     steps: List[TaskStep] = Field(description="프로젝트 진행 단계와 각 단계별 작업들")
     projectOptions: List[str] = Field(description= "다른 후보 추천 프로젝트들의 주제 키워드 3개")
+
+class Jobposting(BaseModel):
+    responsibilities: List[str] = Field(description="해당 직무의 담당업무")
+    qualifications: List[str] = Field(description="채용공고에서 언급된 필요 역량")
+    preferred_qualifications: List[str] = Field(description="채용공고에서 언급된 우대 사항")
+    required_stacks: List[str] = Field(description="채용공고에서 언급된 기술 스택, 채용 공고에서 언급된 기술 스택이 없으면 담당업무, 필요 역량, 우대 사항을 기준으로 생성.")

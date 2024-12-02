@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models.user_info import UserInfo, RegenInfo
-from services.chain_generator import create_gen_chain, create_regen_chain
+from services.chain_generator import create_gen_chain, create_regen_chain, jobposting_summary_chain
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain_community.vectorstores.pgvector import DistanceStrategy
@@ -68,15 +68,32 @@ def genProject(userinfo: UserInfo):
     ])
 
     # 검색된 문서에서 context 구성
-    results_with_scores = vectorstore.similarity_search_with_score(user_query, k=5)
+    k = 20 # 검색할 문서
+    results_with_scores = vectorstore.similarity_search_with_score(user_query, k = k)
 
     # 검색된 문서를 LLM 프롬프트에 전달할 context로 변환
     job_posting = "\n\n".join(
-        f"Content: {doc.page_content}\nMetadata: {doc.metadata}\n사용자와의 Cosine Distance: {score}"
+        f"{doc.page_content}\n사용자와의 Cosine Distance: {score}"
         for doc, score in results_with_scores
     )
-    print(user_query)
-    print(job_posting)
+    
+    summary_chain = jobposting_summary_chain()
+    summarized_job_posting = summary_chain.invoke(
+        input={
+            "k": k,
+            "rank": userinfo.rank,
+            "hopeJob": userinfo.hopeJob,
+            "mainStack": userinfo.mainStack,
+            "educations": userinfo.educations,
+            "companies": userinfo.companies,
+            "projects": userinfo.projects,
+            "prizes": userinfo.prizes,
+            "activities": userinfo.activities,
+            "certificates": userinfo.certificates,
+            "job_posting": job_posting
+        }
+    )
+    print(summarized_job_posting)
 
     proj = gen_chain.invoke(
         input={
@@ -90,9 +107,10 @@ def genProject(userinfo: UserInfo):
             "activities": userinfo.activities,
             "certificates": userinfo.certificates,
             "hopeCompany": userinfo.hopeCompany,
-            "job_posting": job_posting
+            "job_posting": summarized_job_posting
         }
     )
+    print(proj)
     return proj
 
 @app.post('/ai/regenproject')
@@ -104,7 +122,6 @@ def regenProject(regeninfo: RegenInfo):
             'prev_project': regeninfo.prev_project,
             'level': regeninfo.level,
             'projectOption': regeninfo.projectOption,
-            # 'domain': regeninfo.domain,
             'stacks': regeninfo.stacks,
             'job_posting': job_posting
         }
