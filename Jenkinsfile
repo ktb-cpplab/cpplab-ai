@@ -164,6 +164,7 @@ pipeline {
         always {
             echo 'Build and Deploy Completed'
             sh 'rm -rf recommend/models'
+            sh 'rm -rf recommend/mecab-0.996-ko-0.9.2'
         }
     }
 }
