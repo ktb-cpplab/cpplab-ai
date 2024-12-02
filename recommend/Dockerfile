@@ -30,8 +30,7 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/
 
 # 애플리케이션 파일 복사
-COPY recommend_course.py connect_ai_db.py embedding_text_vec.py ./
-COPY models /app/models
+COPY . .
 
 # 애플리케이션 실행
 CMD ["uvicorn", "recommend_course:app", "--host", "0.0.0.0", "--port", "5000"]
