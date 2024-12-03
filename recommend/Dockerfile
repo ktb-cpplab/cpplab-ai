@@ -7,7 +7,16 @@ FROM base AS builder
 # 빌드용 패키지 및 MeCab 설치에 필요한 라이브러리 설치
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    mecab libmecab-dev mecab-ipadic-utf8 build-essential && \
+    mecab \
+    libmecab-dev \
+    mecab-ipadic-utf8 \
+    build-essential \
+    libtool \
+    g++ \
+    make \
+    automake \
+    pkg-config \
+    zlib1g-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 작업 디렉토리 설정
@@ -21,6 +30,9 @@ RUN pip install --no-cache-dir -r requirements.txt && pip install uvicorn
 
 # S3에서 다운로드한 MeCab 사전 복사
 COPY mecab /app/mecab
+
+# MeCab 사전 권한 설정 (필요한 경우)
+RUN chmod -R 755 /app/mecab/mecab-ko-dic-2.1.1-20180720
 
 # 12. MeCab 사전 빌드
 RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
@@ -43,8 +55,7 @@ COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/
 COPY recommend_course.py connect_ai_db.py embedding_text_vec.py keywords.py tf_idf.py ./
 COPY models /app/models
 
-# MeCab 사전 권한 설정 (필요한 경우)
-RUN chmod -R 755 /app/mecab/mecab-ko-dic-2.1.1-20180720
+
 
 # 애플리케이션 실행
 CMD ["uvicorn", "recommend_course:app", "--host", "0.0.0.0", "--port", "5000"]
