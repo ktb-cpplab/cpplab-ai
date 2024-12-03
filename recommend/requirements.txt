@@ -38,4 +38,3 @@ urllib3==2.2.3
 uvicorn==0.32.0
 konlpy==0.6.0
 mecab-python3==1.0.10
-eunjeon==0.4.0
