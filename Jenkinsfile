@@ -57,12 +57,12 @@ pipeline {
                         sh """
                         # recommend/models 폴더 생성
                         mkdir -p recommend/models
-                        mkdir -p recommend/mecab/mecab-ko-dic-2.1.1-20180720
+                        mkdir -p recommend/mecab
                         
                         # S3에서 모델 파일 다운로드
                         aws s3 cp s3://cpplab-pickle/models/ recommend/models/ --recursive
                         # S3에서 모델2 파일 다운로드
-                        aws s3 cp s3://cpplab-mecab/mecab-0.996-ko-0.9.2/ recommend/mecab/mecab-ko-dic-2.1.1-20180720/ --recursive
+                        aws s3 cp s3://cpplab-mecab/mecab-0.996-ko-0.9.2/ recommend/mecab/ --recursive
                         """
                     }
                 }
