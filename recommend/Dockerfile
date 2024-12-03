@@ -19,6 +19,15 @@ COPY requirements.txt ./
 # Python 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt && pip install uvicorn
 
+# S3에서 다운로드한 MeCab 사전 복사
+COPY mecab /app/mecab
+
+# MeCab 사전 빌드
+RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
+    ./configure && \
+    make && \
+    make install
+
 # 3. 최종 이미지 설정
 FROM base
 
@@ -32,9 +41,6 @@ COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/
 # 애플리케이션 파일 복사
 COPY recommend_course.py connect_ai_db.py embedding_text_vec.py keywords.py tf_idf.py ./
 COPY models /app/models
-
-# S3에서 다운로드한 MeCab 사전 복사
-COPY mecab /app/mecab
 
 # MeCab 사전 권한 설정 (필요한 경우)
 RUN chmod -R 755 /app/mecab/mecab-ko-dic-2.1.1-20180720
