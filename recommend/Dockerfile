@@ -22,8 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt && pip install uvicorn
 # S3에서 다운로드한 MeCab 사전 복사
 COPY mecab /app/mecab
 
-# MeCab 사전 빌드
+# 12. MeCab 사전 빌드
 RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
+    chmod +x ./configure && \
     ./configure && \
     make && \
     make install
