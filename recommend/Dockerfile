@@ -32,7 +32,8 @@ RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
     chmod +x ./autogen.sh ./configure && \
     ./autogen.sh && \
     ./configure && \
-    make
+    make && \
+    make install
 
 # Python 의존성 설치
 COPY requirements.txt ./
