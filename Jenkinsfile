@@ -48,6 +48,25 @@ pipeline {
                 }
             }
         }
+        stage('Check Changes') {
+            steps {
+                script {
+                    currentBuild.description = 'Check Changes'
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    echo "Changed files:\n${changes}"
+
+                    // 리드미 파일만 변경된 경우 알림을 스킵하기 위한 플래그 설정
+                    if (changes ==~ /^README(\.md)?$/) {
+                        echo "Only README file has changed. Skipping build, deployment, and notifications."
+                        currentBuild.result = 'SUCCESS'
+                        env.SKIP_NOTIFICATION = "true"
+                        error("Skipping pipeline as only README file has changed.")
+                    } else {
+                        env.SKIP_NOTIFICATION = "false"
+                    }
+                }
+            }
+        }
 
         stage('Download Model from S3') {
             steps {
@@ -138,33 +157,41 @@ pipeline {
 
     post {
         success {
-        withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
-            discordSend description: """
-            제목 : ${currentBuild.displayName}
-            결과 : ${currentBuild.result}
-            실행 시간 : ${currentBuild.duration / 1000}s
-            """,
-            link: env.BUILD_URL, result: currentBuild.currentResult,
-            title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공",
-            webhookURL: "$DISCORD"
-        }
-    }
-        failure {
-            withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
+            script {
+                if (env.SKIP_NOTIFICATION != "true") {
+                    withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
                         discordSend description: """
                         제목 : ${currentBuild.displayName}
                         결과 : ${currentBuild.result}
                         실행 시간 : ${currentBuild.duration / 1000}s
                         """,
                         link: env.BUILD_URL, result: currentBuild.currentResult,
-                        title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패",
+                        title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공",
                         webhookURL: "$DISCORD"
+                    }
+                } else {
+                    echo "Skipping Discord notification due to README-only changes."
+                }
             }
         }
-        always {
-            echo 'Build and Deploy Completed'
-            sh 'rm -rf recommend/models'
-            sh 'rm -rf recommend/mecab'
+        failure {
+            script {
+                if (env.SKIP_NOTIFICATION != "true") {
+                    withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
+                        discordSend description: """
+                        제목 : ${currentBuild.displayName}
+                        결과 : ${currentBuild.result}
+                        실패한 단계: ${currentBuild.description ?: 'Unknown'}
+                        실행 시간 : ${currentBuild.duration / 1000}s
+                        """,
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패",
+                        webhookURL: "$DISCORD"
+                    }
+                } else {
+                    echo "Skipping Discord notification due to README-only changes."
+                }
+            }
         }
     }
 }
