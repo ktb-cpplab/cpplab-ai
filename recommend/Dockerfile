@@ -29,8 +29,7 @@ RUN chmod -R 755 /app/mecab/mecab-ko-dic-2.1.1-20180720
 
 # 빌드 중 MeCab 설정
 RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
-    chmod +x ./autogen.sh ./configure && \
-    ./autogen.sh && \
+    chmod +x ./configure && \
     ./configure && \
     make && \
     make install
