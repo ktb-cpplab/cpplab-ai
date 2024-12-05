@@ -11,9 +11,17 @@ def jobposting_summary_chain():
     gen_summary = gen_summary.partial(format_instructions=parser.get_format_instructions())
     return gen_summary | gen_llm | parser
 
-# 프로젝트 생성 chain
-def create_gen_chain():
-    gen_prompt = hub.pull("gen_prompt")
+# 프로젝트 주제 생성 chain
+def gentheme_chain():
+    gen_prompt = hub.pull("gen_subject")
+    gen_llm = ChatOpenAI(model="gpt-4o-mini")
+    parser = JsonOutputParser(pydantic_object=Project)
+    gen_prompt = gen_prompt.partial(format_instructions=parser.get_format_instructions())
+    return gen_prompt | gen_llm | parser
+
+# 프로젝트 세부 사항 생성 chain
+def gendetails_chain():
+    gen_prompt = hub.pull("gen_tasks")
     gen_llm = ChatOpenAI(model="gpt-4o-mini")
     parser = JsonOutputParser(pydantic_object=Project)
     gen_prompt = gen_prompt.partial(format_instructions=parser.get_format_instructions())

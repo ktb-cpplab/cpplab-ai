@@ -2,14 +2,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models.user_info import UserInfo, RegenInfo
-from services.chain_generator import create_gen_chain, create_regen_chain, jobposting_summary_chain
+from services.chain_generator import *
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain_community.vectorstores.pgvector import DistanceStrategy
 import os
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 from langchain_teddynote import logging
 logging.langsmith("cpplab_test")
@@ -28,8 +28,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-gen_chain = create_gen_chain()
+theme_chain = gentheme_chain()
+details_chain = gendetails_chain()
 regen_chain = create_regen_chain()
+summary_chain = jobposting_summary_chain()
 
 embeddings = OpenAIEmbeddings(model = "text-embedding-3-small") # 임베딩 모델 선언
 
@@ -49,8 +51,10 @@ def health_check():
 # 일단 두 체인 다 업데이트
 @app.post("/ai/updatechain")
 def update_chain():
-    global gen_chain, regen_chain
-    gen_chain = create_gen_chain()
+    global theme_chain, details_chain, regen_chain, summary_chain
+    summary_chain = jobposting_summary_chain()
+    theme_chain = gentheme_chain()
+    details_chain = gendetails_chain()
     regen_chain = create_regen_chain()
 
 @app.post('/ai/genproject')
@@ -77,25 +81,24 @@ def genProject(userinfo: UserInfo):
         for doc, score in results_with_scores
     )
     
-    summary_chain = jobposting_summary_chain()
     summarized_job_posting = summary_chain.invoke(
         input={
             "k": k,
-            "rank": userinfo.rank,
+            # "rank": userinfo.rank,
             "hopeJob": userinfo.hopeJob,
-            "mainStack": userinfo.mainStack,
-            "educations": userinfo.educations,
-            "companies": userinfo.companies,
-            "projects": userinfo.projects,
-            "prizes": userinfo.prizes,
-            "activities": userinfo.activities,
-            "certificates": userinfo.certificates,
+            # "mainStack": userinfo.mainStack,
+            # "educations": userinfo.educations,
+            # "companies": userinfo.companies,
+            # "projects": userinfo.projects,
+            # "prizes": userinfo.prizes,
+            # "activities": userinfo.activities,
+            # "certificates": userinfo.certificates,
             "job_posting": job_posting
         }
     )
     print(summarized_job_posting)
 
-    proj = gen_chain.invoke(
+    theme = theme_chain.invoke(
         input={
             "rank": userinfo.rank,
             "hopeJob": userinfo.hopeJob,
@@ -110,8 +113,18 @@ def genProject(userinfo: UserInfo):
             "job_posting": summarized_job_posting
         }
     )
-    print(proj)
+    print(theme)
+
+    proj = details_chain.invoke(
+        input={
+            "recommended_project": theme
+        }
+    )
+
     return proj
+
+
+
 
 @app.post('/ai/regenproject')
 def regenProject(regeninfo: RegenInfo):
