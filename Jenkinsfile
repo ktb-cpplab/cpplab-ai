@@ -74,14 +74,18 @@ pipeline {
                     currentBuild.description = 'Download Model from S3'
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                         sh """
-                        # recommend/models 폴더 생성
+                        # 모델 디렉토리 생성
                         mkdir -p recommend/models
                         mkdir -p recommend/mecab
-                        
+        
                         # S3에서 모델 파일 다운로드
                         aws s3 cp s3://cpplab-pickle/models/ recommend/models/ --recursive
-                        # S3에서 모델2 파일 다운로드
-                        aws s3 cp s3://cpplab-mecab/mecab-0.996-ko-0.9.2/ recommend/mecab/ --recursive
+                        
+                        # S3에서 mecab.tar.gz 다운로드
+                        aws s3 cp s3://test-pikcle/mecab.tar.gz recommend/mecab/mecab.tar.gz
+        
+                        # 압축 해제
+                        tar -xzvf recommend/mecab/mecab.tar.gz -C recommend/mecab/
                         """
                     }
                 }
