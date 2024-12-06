@@ -6,7 +6,8 @@ from keywords import KEYWORDS, REPLACE_DICT
 
 #load_dotenv()
 
-path = os.getenv("MECAB_PATH")
+#path = os.getenv("MECAB_PATH")
+path = "/app/mecab/mecab-ko-dic-2.1.1-20180720"
 
 def extract_noun_keywords(text):
     mecab = Mecab(dicpath = path)

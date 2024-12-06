@@ -6,6 +6,7 @@ venv/*
 models/*
 models_test/*
 mecab/*
+mecab_copy/*
 
 # 환경변수
 .env
