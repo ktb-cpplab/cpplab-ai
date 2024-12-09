@@ -163,7 +163,7 @@ pipeline {
         success {
             script {
                 if (env.SKIP_NOTIFICATION != "true") {
-                    withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
+                    withCredentials([string(credentialsId: 'Discord-AI-Webhook', variable: 'DISCORD')]) {
                         discordSend description: """
                         제목 : ${currentBuild.displayName}
                         결과 : ${currentBuild.result}
