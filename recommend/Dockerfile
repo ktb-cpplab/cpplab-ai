@@ -12,11 +12,12 @@ RUN apt-get update && \
     autotools-dev \
     autoconf \
     libtool \
-    libpq-dev \
-    gcc \
-    mecab \
+    pkg-config \
     libmecab-dev \
+    mecab \
     mecab-ipadic-utf8 \
+    python3-dev \
+    python3-setuptools \
     curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -32,14 +33,17 @@ RUN cd /app/mecab && \
     make clean && \
     ./configure && \
     make && \
-    make install && \
-    cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
+    make install
+
+RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
     ./autogen.sh && \
     ./configure && \
     make && \
-    make install && \
-    cd /app/mecab/mecab-ko-dic-2.1.1-20180720/mecab-0.996-ko-0.9.2/mecab-python-0.996 && \
-    python setup.py build
+    make install
+    
+
+RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720/mecab-0.996-ko-0.9.2/mecab-python-0.996 && \
+    python3 setup.py build && \
 
 
 # 필요한 파일만 먼저 복사하여 캐시 활용
