@@ -8,19 +8,16 @@ FROM base AS builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
+    make \
     automake \
-    autotools-dev \
     autoconf \
     libtool \
-    pkg-config \
-    libmecab-dev \
     mecab \
+    libmecab-dev \
     mecab-ipadic-utf8 \
-    python3-dev \
-    python3-setuptools \
     curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # 작업 디렉토리 설정
 WORKDIR /app
 
@@ -30,7 +27,6 @@ COPY mecab /app/mecab
 RUN chmod -R 755 /app/mecab
 
 RUN cd /app/mecab && \
-    make clean && \
     ./configure && \
     make && \
     make install
