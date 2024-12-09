@@ -6,10 +6,17 @@ from keywords import KEYWORDS, REPLACE_DICT
 
 #load_dotenv()
 
-#path = os.getenv("MECAB_PATH")
-path = "/app/mecab/mecab-ko-dic-2.1.1-20180720"
+path = os.getenv("MECAB_PATH")
+print("미캅 경로 : ", path)
+
 
 def extract_noun_keywords(text):
+    try:
+        mecab = Mecab(dicpath="/app/mecab/mecab-ko-dic-2.1.1-20180720")
+        print(mecab.pos("테스트 문장입니다."))
+    except Exception as e:
+        print(f"MeCab 동작 실패: {e}")
+    
     mecab = Mecab(dicpath = path)
     nouns = mecab.nouns(text)
 

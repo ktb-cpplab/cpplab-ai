@@ -51,6 +51,7 @@ def get_vectorizer():
 
 def search_db(sentence):
     try:
+        print("서치 디비 시작")
         start_time = time.time()
 
         connection = psycopg2.connect(
@@ -62,9 +63,12 @@ def search_db(sentence):
         )
 
         cursor = connection.cursor()
+        print("벡터라이즈")
         vectorizer = get_vectorizer()
+        print("버트 변환")
         embeddingModel = SentenceEmbedding() 
         bert_vec = embeddingModel.get_mean_embedding(sentence)  
+        print("미캅 변환")
         tfidf_vec = get_tf_idf(vectorizer, ' '.join(sentence))
 
         query = f"""
