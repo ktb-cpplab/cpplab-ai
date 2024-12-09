@@ -29,6 +29,7 @@ COPY mecab /app/mecab
 RUN chmod -R 755 /app/mecab
 
 RUN cd /app/mecab && \
+    make clean && \
     ./configure && \
     make && \
     make install && \
