@@ -28,7 +28,7 @@ RUN chmod -R 755 /app/mecab
 
 RUN cd /app/mecab && \
     make clean || true && \
-    ./configure && \
+    ./configure CXXFLAGS="-std=c++11 -D_GNU_SOURCE -O3 -Wall" LDFLAGS="-L/usr/lib/x86_64-linux-gnu" && \
     make && \
     make install
 
