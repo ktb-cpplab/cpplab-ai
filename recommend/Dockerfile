@@ -6,42 +6,11 @@ FROM base AS builder
 
 # 빌드용 패키지 설치
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    make \
-    automake \
-    autoconf \
-    libtool \
-    mecab \
-    libmecab-dev \
-    mecab-ipadic-utf8 \
-    curl && \
+    apt-get install -y --no-install-recommends libpq-dev gcc && \   
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # 작업 디렉토리 설정
 WORKDIR /app
-
-# S3에서 다운로드한 MeCab 사전 복사
-COPY mecab /app/mecab
-
-RUN chmod -R 755 /app/mecab
-
-RUN cd /app/mecab && \
-    make clean || true && \
-    ./configure CXXFLAGS="-std=c++11 -D_GNU_SOURCE -O3 -Wall" LDFLAGS="-L/usr/lib/x86_64-linux-gnu" && \
-    make && \
-    make install
-
-RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720 && \
-    ./autogen.sh && \
-    ./configure && \
-    make && \
-    make install
-    
-
-RUN cd /app/mecab/mecab-ko-dic-2.1.1-20180720/mecab-0.996-ko-0.9.2/mecab-python-0.996 && \
-    python3 setup.py build && \
-
 
 # 필요한 파일만 먼저 복사하여 캐시 활용
 COPY requirements.txt ./
@@ -57,12 +26,14 @@ WORKDIR /app
 
 # 의존성 복사
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+
 # 실행 파일 복사
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/
 
 # 애플리케이션 파일 복사
 COPY recommend_course.py connect_ai_db.py embedding_text_vec.py keywords.py tf_idf.py ./
 COPY models /app/models
+COPY mecab /app/mecab
 
 RUN 
 # 애플리케이션 실행
