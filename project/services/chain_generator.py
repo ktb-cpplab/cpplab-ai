@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain import hub
-from models.project_info import Project, Jobposting
+from models.project_info import Project, Jobposting, Theme
 
 # 채용공고 요약 chain
 def jobposting_summary_chain():
@@ -15,7 +15,7 @@ def jobposting_summary_chain():
 def gentheme_chain():
     gen_prompt = hub.pull("gen_subject")
     gen_llm = ChatOpenAI(model="gpt-4o-mini")
-    parser = JsonOutputParser(pydantic_object=Project)
+    parser = JsonOutputParser(pydantic_object=Theme)
     gen_prompt = gen_prompt.partial(format_instructions=parser.get_format_instructions())
     return gen_prompt | gen_llm | parser
 

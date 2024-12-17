@@ -20,3 +20,12 @@ class Jobposting(BaseModel):
     qualifications: List[str] = Field(description="채용공고에서 언급된 필요 역량")
     preferred_qualifications: List[str] = Field(description="채용공고에서 언급된 우대 사항")
     required_stacks: List[str] = Field(description="채용공고에서 언급된 기술 스택, 채용 공고에서 언급된 기술 스택이 없으면 담당업무, 필요 역량, 우대 사항을 기준으로 생성.")
+
+class Theme(BaseModel):
+    title: str = Field(description="프로젝트의 제목")
+    description: str = Field(description="프로젝트에 대한 설명")
+    projectgoal: str = Field(description="프로젝트의 목표")
+    techStacks: List[str] = Field(description="프로젝트에 사용되는 기술 스택 목록")
+    qualifications: List[str] = Field(description="채용공고에서 언급된 필요 역량")
+    preferred_qualifications: List[str] = Field(description="채용공고에서 언급된 우대 사항")
+    userskillgaps: List[str] = Field(description="채용공고의 필요 역량, 우대 사항과 비교했을 때 사용자가 부족한 역량")
