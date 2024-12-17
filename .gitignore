@@ -3,9 +3,8 @@ venv/*
 .venv
 
 # embedding model
-models/*
-models_test/*
-mecab/*
+recommend/models/*
+recommend/mecab/*
 mecab_copy/*
 
 # 환경변수
