@@ -82,10 +82,7 @@ pipeline {
                         aws s3 cp s3://cpplab-pickle/models/ recommend/models/ --recursive
                         
                         # S3에서 mecab.tar.gz 다운로드
-                        aws s3 cp s3://test-pikcle/mecab.tar.gz recommend/mecab/mecab.tar.gz
-        
-                        # 압축 해제
-                        tar -xzvf recommend/mecab/mecab.tar.gz -C recommend/mecab/
+                        aws s3 cp s3://cpplab-mecab/mecab/ recommend/mecab/ --recursive
                         """
                     }
                 }
