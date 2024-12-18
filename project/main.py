@@ -49,7 +49,7 @@ vectorstore = PGVector.from_existing_index(
 )
 
 # redis 연결, session 관리용
-r = redis.StrictRedis(host=os.getenv('CLOUD_REDIS'), port=6379, db=0, decode_responses=True)
+r = redis.StrictRedis(host=os.getenv('CLOUD_REDIS'), port=6379, password = 'cpplab11', db=0, decode_responses=True)
 
 @app.get("/ai/health")
 def health_check():
