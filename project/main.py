@@ -9,8 +9,8 @@ from langchain_community.vectorstores.pgvector import DistanceStrategy
 from services.session import *
 import os
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from langchain_teddynote import logging
 logging.langsmith("cpplab_test")
