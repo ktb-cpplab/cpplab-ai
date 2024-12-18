@@ -48,9 +48,14 @@ class UserInfo(BaseModel):
 
 # 재생성을 위한 정보
 class RegenInfo(BaseModel):
-    portfolio: Dict
-    prev_project: Dict
-    level: str
+    sessionId: str
+    # portfolio: Dict
+    # prev_project: Dict
+    hopeLevel: str
     projectOption: str
     # domain: str
-    stacks: List[str]
+    hopeStacks: List[str]
+
+# 세션 만료
+class Session(BaseModel):
+    sessionId: str
