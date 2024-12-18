@@ -27,6 +27,7 @@ __pycache__
 test.py
 test
 data
+project/abtest.py
 
 # 크롤링은 일단 올리지 않겠습니다
 
