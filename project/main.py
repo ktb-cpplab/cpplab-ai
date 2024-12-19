@@ -1,13 +1,19 @@
 # uvicorn main:app --reload
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from models.user_info import *
 from services.chain_generator import *
+from services.helper import *
+from services.session import *
+
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain_community.vectorstores.pgvector import DistanceStrategy
-from services.session import *
+
 import os
+import time
+import datetime
 
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -39,6 +45,7 @@ summary_chain = jobposting_summary_chain()
 embeddings = OpenAIEmbeddings(model = "text-embedding-3-small") 
 
 # vectordb 연결
+# conn = os.getenv('LOCAL_DB')
 conn = os.getenv('CLOUD_DB')
 vectorstore = PGVector.from_existing_index(
     embedding=embeddings,
@@ -49,51 +56,52 @@ vectorstore = PGVector.from_existing_index(
 )
 
 # redis 연결, session 관리용
-r = redis.StrictRedis(host=os.getenv('CLOUD_REDIS'), port=6379, password = 'cpplab11', db=0, decode_responses=True)
+r = redis.Redis(
+    # host='localhost',
+    host=os.getenv('CLOUD_REDIS'),
+    port=6379,
+    password = 'cpplab11',
+    db=0,
+    decode_responses=True
+)
 
+# heatlth check endpoint
 @app.get("/ai/health")
-def health_check():
+async def health_check():
     return {"status": "healthy"}
 
-# 일단 모든 체인 다 업데이트
+# update chain endpoint
 @app.post("/ai/updatechain")
-def update_chain():
+async def update_chain():
     global theme_chain, details_chain, regen_chain, summary_chain
     summary_chain = jobposting_summary_chain()
     theme_chain = gentheme_chain()
     details_chain = gendetails_chain()
     regen_chain = regendetails_chain()
+    return {"message": "Chains updated successfully"}
 
+# generate project endpoint
 @app.post('/ai/genproject')
-def genProject(userinfo: UserInfo):
+async def genProject(userinfo: UserInfo):
+    # 시작 시간 기록
+    overall_start_time = time.time()
+
     # 초기 프로젝트 생성 시 세션 생성
     sessionId = create_sessionId(redis_client=r)
-    print(sessionId)
-
+    print(f"세션 생성: {sessionId}", datetime.datetime.now().strftime('%H:%M:%S'))
+    
     # userinfo 파싱 후 query로 사용
-    user_query = "\n".join([
-        f"희망 직무: {userinfo.hopeJob}",
-        f"주요 기술 스택: {', '.join(userinfo.mainStack)}",
-        f"희망 회사: {', '.join(userinfo.hopeCompany)}",
-        f"학력: {', '.join([f'{edu.university}({edu.department}) GPA: {edu.gpa}/{edu.gpaMax}' for edu in userinfo.educations])}",
-        f"프로젝트 경험: {', '.join([proj.title for proj in userinfo.projects])}",
-        f"수상 내역: {', '.join([prize.title for prize in userinfo.prizes])}",
-        f"활동: {', '.join([activity.title for activity in userinfo.activities])}",
-        f"보유 자격증: {', '.join([cert.certificateName for cert in userinfo.certificates])}"
-    ])
+    user_query = makeQuery(userinfo)
 
     # 유사한 채용공고 검색
-    k = 20 
-    results_with_scores = vectorstore.similarity_search_with_score(user_query, k = k)
+    results_with_scores = searchJobposting(user_query, vectorstore, k=20)
 
-    # 검색된 문서를 LLM 프롬프트에 전달할 context로 변환
-    job_posting = "\n\n".join(
-        f"{doc.page_content}\n사용자와의 Cosine Distance: {score}"
-        for doc, score in results_with_scores
-    )
-    
+    # 검색된 문서를 LLM 프롬프트에 전달할 context로 파싱
+    job_posting = convert_to_context(results_with_scores)
+
     # 채용 공고 요약
-    summarized_job_posting = summary_chain.invoke(
+    k = 20
+    summarized_job_posting = await summary_chain.ainvoke(
         input={
             "k": k,
             # "rank": userinfo.rank,
@@ -108,10 +116,10 @@ def genProject(userinfo: UserInfo):
             "job_posting": job_posting
         }
     )
-    print(summarized_job_posting)
+    print(f"{sessionId}: 채용 공고 요약 완료")
 
     # 프로젝트 주제들 생성
-    themes = theme_chain.invoke(
+    themes = await theme_chain.ainvoke(
         input={
             "rank": userinfo.rank,
             "hopeJob": userinfo.hopeJob,
@@ -124,66 +132,90 @@ def genProject(userinfo: UserInfo):
             "certificates": userinfo.certificates,
             "hopeCompany": userinfo.hopeCompany,
             "job_posting": summarized_job_posting,
-            'isRegen': False
+            'isRegen': False,
+            'prev_theme': '' # 첫 프로젝트 생성이므로 빈 문자열
         }
     )
-    # 첫 번째 주제 사용
-    theme = themes['themes'][0]
-    print(theme)
+    print(f"{sessionId}: 프로젝트 주제 생성 완료")
 
     # 프로젝트 tasks 생성
-    proj = details_chain.invoke(
+    res = await details_chain.ainvoke(
         input={
-            "recommended_project": theme
+            "recommended_project": themes['themes'][0] # 첫 번째 주제 사용
         }
     )
 
     # redis에 초기 세션 데이터 저장
-    data = {}
-    # data["session_Id"] = session_Id
-    data['user_portfolio'] = userinfo.model_dump()
-    data['summarized_job_posting'] = summarized_job_posting
-    data['theme'] = theme
-    data['project'] = proj
-    data['regenCount'] = 0
-    data['projectOptions'] = [theme for theme in themes['themes'][1:]]
-    print(sessionId)
+    data = parseData(userinfo, summarized_job_posting, themes, res)
     set_data(redis_client = r, key = sessionId, data = data)
     
-    # response에 sessionid 필드 추가
-    proj["sessionId"] = sessionId
+    res["sessionId"] = sessionId # response에 sessionid 필드 추가
+    res['projectOptions'] = [theme['title'] for theme in themes['themes'][1:]] # response에 projectOptions 필드 추가
 
-    # response에 projectOptions 필드 추가
-    proj['projectOptions'] = [theme['title'] for theme in themes['themes'][1:]]
-    return proj
+    # 전체 프로세스 끝 시간 기록
+    overall_end_time = time.time()
+    elapsed_overall_time = overall_end_time - overall_start_time
+    print(f"{sessionId}: 전체 프로세스 종료 at {overall_end_time} (소요 시간: {elapsed_overall_time:.2f}초)")
+    return res
 
+# regenerate project endpoint
 @app.post('/ai/regenproject')
-def regenProject(regeninfo: RegenInfo):
+async def regenProject(regeninfo: RegenInfo):
     # sessionId와 일치하는 데이터 조회
     data = get_data(redis_client=r, key = regeninfo.sessionId)
-    print(data)
-    
-    # 재생성 횟수 증가
-    data['regenCount'] += 1
+    # print(f"{regeninfo.sessionId}: 데이터 조회 완료")
 
     # projectOptions에서 사용자가 선택한 projectOption 검색
-    for i in data['projectOptions']:
-        print('\n')
-        print(i['title'])
-        if i['title'] == regeninfo.projectOption:
-            hope_theme = i
+    hope_theme = findTheme(data, regeninfo)
+    # print(data['projectOptions'])
+    # print(hope_theme)
 
-    proj = regen_chain.invoke(
+    # prev_theme에 이전 프로젝트 주제 추가
+    data['prev_theme'] += [theme['title'] for theme in data['projectOptions']]
+    
+    # 프로젝트 주제들 생성
+    themes = await theme_chain.ainvoke(
+        input={
+            "rank": data['user_portfolio']['rank'],
+            "hopeJob": data['user_portfolio']['hopeJob'],
+            "mainStack": data['user_portfolio']['mainStack'],
+            "educations": data['user_portfolio']['educations'],
+            "companies": data['user_portfolio']['companies'],
+            "projects": data['user_portfolio']['projects'],
+            "prizes": data['user_portfolio']['prizes'],
+            "activities": data['user_portfolio']['activities'],
+            "certificates": data['user_portfolio']['certificates'],
+            "hopeCompany": data['user_portfolio']['hopeCompany'],
+            "job_posting": data['summarized_job_posting'],
+            'isRegen': True,
+            'prev_theme': data['prev_theme']
+        }
+    )
+    print(f"{regeninfo.sessionId}: 프로젝트 주제 재생성 완료")
+
+    # 프로젝트 tasks 생성
+    res = await regen_chain.ainvoke(
         input={
             # 'portfolio': data['user_portfolio'],
             'prev_project': data['project'],
+            'prev_theme': data['prev_theme'],
             'hopeLevel': regeninfo.hopeLevel,
             'hope_theme': hope_theme,
             'hopeStacks': regeninfo.hopeStacks
         }
     )
-    return proj
+    print(f"{regeninfo.sessionId}: 프로젝트 tasks 재생성 완료")
 
+    res['projectOptions'] = [theme['title'] for theme in themes['themes']] # response에 projectOptions 필드 추가
+    res["sessionId"] = regeninfo.sessionId # response에 sessionid 필드 추가
+
+    # redis에 데이터 업데이트
+    data['projectOptions']  = [theme for theme in themes['themes']]
+    set_data(redis_client = r, key = regeninfo.sessionId, data = data)
+    return res
+
+# delete session endpoint
 @app.delete('/ai/delsession')
-def deleteSession(sessionId: Session):
-    delete_sessionId(redis_client=r, key = sessionId)
+def deleteSession(session: Session):
+    delete_sessionId(redis_client=r, key = session.sessionId)
+    return {"message": "Session deleted successfully"}
