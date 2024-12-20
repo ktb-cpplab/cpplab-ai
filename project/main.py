@@ -224,7 +224,7 @@ def deleteSession(session: Session):
 
 # test generate project endpoint
 @app.post('/ai/test/asyncgenproject')
-async def genProject(userinfo: UserInfo):
+async def asyncgenProject(userinfo: UserInfo):
     # 시작 시간 기록
     overall_start_time = time.time()
 
@@ -438,7 +438,7 @@ async def genProject(userinfo: UserInfo):
 
 # test generate project endpoint
 @app.post('/ai/test/syncgenproject')
-def genProject(userinfo: UserInfo):
+def syncgenProject(userinfo: UserInfo):
     # 시작 시간 기록
     overall_start_time = time.time()
 
