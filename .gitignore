@@ -3,14 +3,17 @@ venv/*
 .venv
 
 # embedding model
-models/*
+recommend/models/*
 models_test/*
+recommend/mecab/*
+recommend/mecab.zip
+recommend/models.zip
 
 # 환경변수
 .env
 
 # 로컬 테스트
-connect_local_db.py
+connect_local_db.pys
 connect_local_tfidf.py
 recommend_course_local_test.py
 embedding_text_vec_local_test.py

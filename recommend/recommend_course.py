@@ -43,6 +43,7 @@ def health_check():
 @app.post("/ai/recommend")
 def recommend_course_endpoint(request: RecommendRequest):
     sentences = request.get_sentences()
+    print("인풋데이터 : ", sentences)
     search_result = search_db(sentences)
     
     result = []

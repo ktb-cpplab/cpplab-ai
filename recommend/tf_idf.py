@@ -2,9 +2,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from konlpy.tag import Mecab
 import os
 from keywords import KEYWORDS, REPLACE_DICT
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-#load_dotenv()
+load_dotenv()
 
 path = os.getenv("MECAB_PATH")
 

@@ -1,9 +1,12 @@
 import psycopg2
 import os
 import time
+import ast
+import numpy as np
 from dotenv import load_dotenv
 from tf_idf import get_keywords, get_tf_idf, create_vectorizer
 from embedding_text_vec import SentenceEmbedding
+from sklearn.decomposition import TruncatedSVD
 
 load_dotenv()
 
@@ -33,23 +36,58 @@ def get_vectorizer():
 
         # 테이블에 삽입할 데이터
         query = f"""
-            SELECT title, contents
+            SELECT contents
             FROM tfidf
             """
         cursor_local.execute(query)
         results_local = cursor_local.fetchall()
 
-        titles = []
         contents = []
         for row in results_local:
-            title = row[0]
-            content = row[1]
-            titles.append(title)
+            content = row[0]
             contents.append(content)
 
         vectorizer = create_vectorizer(contents)
         
         return vectorizer
+
+    except Exception as error:
+        print("데이터베이스 작업 중 에러 발생:", error)
+
+    finally:
+        if connection_local:
+            cursor_local.close()
+            connection_local.close()    
+
+def get_tsvd():
+    try:
+        connection_local = psycopg2.connect(
+            host = local_db_url,
+            database = local_db_name,
+            user = local_db_user,
+            password = local_db_password,
+            port = local_db_port
+        )
+
+        cursor_local = connection_local.cursor()
+
+        # 테이블에 삽입할 데이터
+        query = f"""
+            SELECT tfidf_vec
+            FROM total
+            """
+        cursor_local.execute(query)
+        results_local = cursor_local.fetchall()
+
+        matrix = []
+        for row in results_local:
+            tfidf_vec = ast.literal_eval(row[0])
+            matrix.append(tfidf_vec)
+
+        tsvd = TruncatedSVD(n_components = 10)
+        tsvd.fit(matrix)
+        
+        return tsvd
 
     except Exception as error:
         print("데이터베이스 작업 중 에러 발생:", error)
@@ -312,6 +350,66 @@ def insert_total():
             cursor_local.close()
             connection_local.close()     
 
+def search_svd(sentence):
+    try:
+        start_time = time.time()
+
+        connection_local = psycopg2.connect(
+            host = local_db_url,
+            database = local_db_name,
+            user = local_db_user,
+            password = local_db_password,
+            port = local_db_port
+        )
+
+        cursor = connection_local.cursor()
+        vectorizer = get_vectorizer()
+        tfidf_vec = get_tf_idf(vectorizer, sentence)
+
+        matrix = np.array(tfidf_vec).reshape(1,-1)
+
+        tsvd = get_tsvd()
+        data_tsvd = tsvd.transform(matrix).tolist()[0]
+
+
+        embeddingModel = SentenceEmbedding() 
+        bert_vec = embeddingModel.get_mean_embedding([sentence])
+
+        query = f"""
+        WITH tfidf AS (
+            SELECT title, bert_vec, tfidf_vec <-> %s::vector AS similarity
+            FROM svd
+            ORDER BY similarity
+            LIMIT 20
+        )
+        SELECT title, bert_vec <#> %s::vector AS similarity
+        FROM tfidf
+        ORDER BY similarity
+        LIMIT 3;
+        """
+        cursor.execute(query, (data_tsvd, bert_vec))
+        results = cursor.fetchall()
+        
+        for idx, row in enumerate(results):
+            title = row[0]
+            similarity = row[1]
+            print(f"TOP{idx+1}")
+            print("title      :", title)
+            print("Similarity : ", similarity)
+
+        end_time = time.time()
+        print(f"search svd 소요 시간 : {end_time - start_time:.6f}초")
+
+    except Exception as error:
+        print("데이터 검색 중 에러 발생:", error)
+    
+    finally:
+        if connection_local:
+            cursor.close()
+            connection_local.close()
+        else:
+            print("데이터 베이스 연결에 실패했습니다")
+
 def search_total(sentence):
     try:
         start_time = time.time()
@@ -329,9 +427,6 @@ def search_total(sentence):
         tfidf_vec = get_tf_idf(vectorizer, sentence)
         embeddingModel = SentenceEmbedding() 
         bert_vec = embeddingModel.get_mean_embedding([sentence])
-
-        print("tfidf_vec : ", tfidf_vec)
-        print("bert_vec  : ", bert_vec)
 
         query = f"""
         WITH tfidf AS (
@@ -356,7 +451,7 @@ def search_total(sentence):
             print("Similarity : ", similarity)
 
         end_time = time.time()
-        print(f"소요 시간 : {end_time - start_time:.6f}초")
+        print(f"search total 소요 시간 : {end_time - start_time:.6f}초")
 
     except Exception as error:
         print("데이터 검색 중 에러 발생:", error)
@@ -368,8 +463,63 @@ def search_total(sentence):
         else:
             print("데이터 베이스 연결에 실패했습니다")
 
-
-
-#search_total("AI 개발자 초급 Python TensorFlow Pandas Numpy AI 기반 교통 혼잡 예측 시스템 개발 이 프로젝트는 AI 기술을 활용하여 교통 혼잡을 예측하는 시스템을 개발합니다. 다양한 데이터 소스를 사용하여 정확한 예측 모델을 구축하고, 사용자에게 유용한 정보를 제공합니다.")
-#search_total("백엔드 개발자 중급 Redis Java Spring Boot MySQL 중급 비즈니스 로직 개발 프로젝트 본 프로젝트는 고급 비즈니스 로직을 구현하기 위해 Redis를 활용한 데이터 캐싱 및 API 설계를 포함합니다. 복잡한 데이터 흐름을 효율적으로 처리하고, 비즈니스 요구 사항을 충족시키는 시스템을 구축합니다.")
+search_total("AI 개발자 초급 Python TensorFlow Pandas Numpy AI 기반 교통 혼잡 예측 시스템 개발 이 프로젝트는 AI 기술을 활용하여 교통 혼잡을 예측하는 시스템을 개발합니다. 다양한 데이터 소스를 사용하여 정확한 예측 모델을 구축하고, 사용자에게 유용한 정보를 제공합니다.")
+search_total("백엔드 개발자 중급 Redis Java Spring Boot MySQL 중급 비즈니스 로직 개발 프로젝트 본 프로젝트는 고급 비즈니스 로직을 구현하기 위해 Redis를 활용한 데이터 캐싱 및 API 설계를 포함합니다. 복잡한 데이터 흐름을 효율적으로 처리하고, 비즈니스 요구 사항을 충족시키는 시스템을 구축합니다.")
 search_total("윈도우 어플리케이션 개발자 hadoop recoil redux 중급 웹 애플리케이션 성능 최적화 프로젝트 이 프로젝트는 웹 애플리케이션의 성능을 개선하기 위해 데이터 처리 및 상태 관리를 최적화하는 것을 목표로 합니다. Hadoop을 활용한 데이터 처리, Recoil 및 Redux를 통한 상태 관리 최적화 등을 통해 사용자 경험을 향상시킵니다.")
+
+
+def truncate_data():
+    try:
+        connection_local = psycopg2.connect(
+            host = local_db_url,
+            database = local_db_name,
+            user = local_db_user,
+            password = local_db_password,
+            port = local_db_port
+        )
+
+        cursor_local = connection_local.cursor()
+
+        # 테이블에 삽입할 데이터
+        query = f"""
+            SELECT title, contents, url, bert_vec, tfidf_vec
+            FROM total
+            """
+        cursor_local.execute(query)
+        results_local = cursor_local.fetchall()
+
+        matrix = []
+        for row in results_local:
+            tfidf_vec = ast.literal_eval(row[4])
+            matrix.append(tfidf_vec)
+
+        matrix = np.array(matrix)
+        tsvd = TruncatedSVD(n_components = 10)
+        tsvd.fit(matrix)
+        data_tsvd = tsvd.transform(matrix)
+
+        for idx,row in enumerate(results_local):
+            title = row[0]
+            contents = row[1]
+            url = row[2]
+            bert_vec = row[3]
+            truncated_vec = data_tsvd[idx].tolist()
+
+            query = """
+                    INSERT INTO svd (title, contents, url, bert_vec, tfidf_vec)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """            
+            
+            data_to_insert = (title, contents, url, bert_vec, truncated_vec)
+            cursor_local.execute(query, data_to_insert)
+            connection_local.commit()
+
+        print("데이터가 성공적으로 삽입되었습니다.")
+
+    except Exception as error:
+        print("데이터베이스 작업 중 에러 발생:", error)
+
+    finally:
+        if connection_local:
+            cursor_local.close()
+            connection_local.close()     
