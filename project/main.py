@@ -90,7 +90,7 @@ async def genProject(userinfo: UserInfo):
 
     # 초기 프로젝트 생성 시 세션 생성
     sessionId = create_sessionId(redis_client=r)
-    print(f"세션 생성: {sessionId}", datetime.datetime.now().strftime('%H:%M:%S'))
+    print(f"{sessionId}: 세션 생성, 현재 시각: {datetime.datetime.now().strftime('%H:%M:%S')}")
     
     # userinfo 파싱 후 query로 사용
     user_query = makeQuery(userinfo)
@@ -118,7 +118,7 @@ async def genProject(userinfo: UserInfo):
             "job_posting": job_posting
         }
     )
-    print(f"{sessionId}: 채용 공고 요약 완료")
+    print(f"{sessionId}: 채용 공고 요약 완로, 현재 시각: {datetime.datetime.now().strftime('%H:%M:%S')}")
 
     # 프로젝트 주제들 생성
     themes = await theme_chain.ainvoke(
@@ -138,7 +138,7 @@ async def genProject(userinfo: UserInfo):
             'prev_theme': '' # 첫 프로젝트 생성이므로 빈 문자열
         }
     )
-    print(f"{sessionId}: 프로젝트 주제 생성 완료")
+    print(f"{sessionId}: 프로젝트 주제 생성 완료, 현재 시각: {datetime.datetime.now().strftime('%H:%M:%S')}")
 
     # 프로젝트 tasks 생성
     res = await details_chain.ainvoke(
@@ -157,7 +157,7 @@ async def genProject(userinfo: UserInfo):
     # 전체 프로세스 끝 시간 기록
     overall_end_time = time.time()
     elapsed_overall_time = overall_end_time - overall_start_time
-    print(f"{sessionId}: 전체 프로세스 종료 at {overall_end_time} (소요 시간: {elapsed_overall_time:.2f}초)")
+    print(f"{sessionId}: 전체 프로세스 종료, 소요 시간: {elapsed_overall_time:.2f}초")
     return res
 
 # regenerate project endpoint
