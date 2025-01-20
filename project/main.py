@@ -27,8 +27,24 @@ def load_fake_data():
         test_data = json.load(file)
     return test_data
 
-# from dotenv import load_dotenv
-# load_dotenv()
+# 개발, 배포 스위칭
+# status = 'dev'
+status = 'deploy'
+if status == 'dev':
+    # local 환경변수
+    from dotenv import load_dotenv
+    load_dotenv()
+    # local vector DB 연결
+    conn = os.getenv('LOCAL_DB')
+    # local Redis 연결
+    r_host = 'localhost'
+    r_password = None
+else:
+    # cloud vector DB 연결
+    conn = os.getenv('CLOUD_DB')
+    # cloud Redis 연결
+    r_host = os.getenv('CLOUD_REDIS')
+    r_password = 'cpplab11'
 
 logging.langsmith("cpplab_test")
 
@@ -56,8 +72,6 @@ summary_chain = jobposting_summary_chain()
 embeddings = OpenAIEmbeddings(model = "text-embedding-3-small") 
 
 # vectordb 연결
-# conn = os.getenv('LOCAL_DB')
-conn = os.getenv('CLOUD_DB')
 vectorstore = PGVector.from_existing_index(
     embedding=embeddings,
     connection=conn,
@@ -68,10 +82,9 @@ vectorstore = PGVector.from_existing_index(
 
 # redis 연결, session 관리용
 r = redis.Redis(
-    # host='localhost',
-    host=os.getenv('CLOUD_REDIS'),
+    host=r_host,
     port=6379,
-    password = 'cpplab11',
+    password = r_password,
     db=0,
     decode_responses=True
 )
